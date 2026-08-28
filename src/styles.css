@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-background: #f3eee4;
+  --color-foreground: #1a1714;
+  --color-surface: #fbf8f1;
+  --color-surface-2: #ece6d8;
+  --color-muted: #6f675c;
+  --color-muted-foreground: #6f675c;
+  --color-border: #ddd4c4;
+  --color-input: #ddd4c4;
+  --color-ring: #1e4a44;
+  --color-primary: #1e4a44;
+  --color-primary-foreground: #f3eee4;
+  --color-secondary: #ece6d8;
+  --color-secondary-foreground: #1a1714;
+  --color-accent: #1e4a44;
+  --color-accent-foreground: #f3eee4;
+  --color-destructive: #a33b3b;
+  --color-destructive-foreground: #fbf8f1;
+  --color-success: #1f6b4a;
+  --color-success-foreground: #f3eee4;
+  --color-success-bg: #e3f0e8;
+  --color-error-bg: #f6e4e1;
+  --color-card: #fbf8f1;
+  --color-card-foreground: #1a1714;
+  --color-popover: #fbf8f1;
+  --color-popover-foreground: #1a1714;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+.notebook-rule {
+  box-shadow: inset 3px 0 0 0 var(--color-primary);
+}
