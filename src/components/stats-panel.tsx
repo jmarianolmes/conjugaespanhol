@@ -1,25 +1,38 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useHydrated } from "@/hooks/use-hydrated";
-import { TENSES, VERBS, accuracy, getTense, getVerb, useProgress } from "@/lib/spanish";
+import {
+  TENSES,
+  VERBS,
+  accuracy,
+  getTense,
+  getVerb,
+  useActiveProfile,
+  useProgress,
+} from "@/lib/spanish";
 
 export function StatsPanel() {
   const hydrated = useHydrated();
-  const totalCorrect = useProgress((s) => s.totalCorrect);
-  const totalWrong = useProgress((s) => s.totalWrong);
-  const streak = useProgress((s) => s.streak);
-  const bestStreak = useProgress((s) => s.bestStreak);
-  const byKey = useProgress((s) => s.byKey);
-  const recent = useProgress((s) => s.recent);
+  const profile = useActiveProfile();
+  const activeId = useProgress((s) => s.activeId);
+  const profiles = useProgress((s) => s.profiles);
+  const addPerson = useProgress((s) => s.addPerson);
+  const setActive = useProgress((s) => s.setActive);
+  const removePerson = useProgress((s) => s.removePerson);
   const reset = useProgress((s) => s.reset);
+  const [newName, setNewName] = useState("");
 
   if (!hydrated) {
     return <p className="text-sm text-muted-foreground">Carregando o seu progresso…</p>;
   }
 
+  const { totalCorrect, totalWrong, streak, bestStreak, byKey, recent } = profile;
   const total = totalCorrect + totalWrong;
   const pct = accuracy(totalCorrect, totalWrong);
+  const people = Object.entries(profiles);
 
   const tenseRows = TENSES.map((tense) => {
     let correct = 0;
@@ -50,13 +63,65 @@ export function StatsPanel() {
   const mistakes = recent.filter((item) => !item.ok).slice(0, 8);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div>
         <h2 className="font-display text-3xl tracking-tight">Progresso</h2>
-        <p className="mt-2 max-w-prose text-muted-foreground">
-          Fica neste aparelho. Não precisa de conta — é só para você ver o que já firmou.
+        <p className="mt-2 max-w-prose text-sm text-muted-foreground">
+          Sem conta. Cada pessoa neste aparelho tem o seu caderno — fica só no navegador.
         </p>
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Quem está praticando</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex flex-wrap gap-2">
+            {people.map(([id, person]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActive(id)}
+                className={
+                  id === activeId
+                    ? "h-10 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
+                    : "h-10 rounded-lg border border-border bg-surface px-3 text-sm"
+                }
+              >
+                {person.name}
+              </button>
+            ))}
+          </div>
+          <form
+            className="flex gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!newName.trim()) return;
+              addPerson(newName);
+              setNewName("");
+            }}
+          >
+            <Input
+              value={newName}
+              onChange={(event) => setNewName(event.target.value)}
+              placeholder="Nome de outra pessoa"
+              aria-label="Nome da nova pessoa"
+            />
+            <Button type="submit" variant="secondary">
+              Adicionar
+            </Button>
+          </form>
+          {people.length > 1 ? (
+            <button
+              type="button"
+              className="self-start text-sm text-muted-foreground hover:text-destructive"
+              onClick={() => removePerson(activeId)}
+            >
+              Remover {profile.name} deste aparelho
+            </button>
+          ) : null}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Card>
@@ -144,7 +209,7 @@ export function StatsPanel() {
               return (
                 <div key={`${item.at}-${item.person}`} className="text-sm">
                   <p className="text-muted-foreground">
-                    {tense.shortPt} · {verb.infinitive} · {item.person}
+                    {tense.shortPt} · {verb.infinitive} · {item.person === "el" ? "él" : item.person === "tu" ? "tú" : item.person}
                   </p>
                   <p>
                     <span className="text-destructive">{item.given || "—"}</span>
@@ -160,11 +225,11 @@ export function StatsPanel() {
 
       {total === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Ainda não há tentativas. Vá em Praticar, escolha um tempo e um verbo, e escreva as formas.
+          Ainda não há tentativas nesta pessoa. Vá em Praticar e escreva as formas.
         </p>
       ) : (
         <Button type="button" variant="outline" onClick={reset}>
-          Zerar progresso
+          Zerar progresso de {profile.name}
         </Button>
       )}
     </div>

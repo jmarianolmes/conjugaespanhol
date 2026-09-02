@@ -5,45 +5,47 @@ import { StatsPanel } from "@/components/stats-panel";
 import { TheoryPanel } from "@/components/theory-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHydrated } from "@/hooks/use-hydrated";
-import { useProgress } from "@/lib/spanish";
+import { useActiveProfile } from "@/lib/spanish";
 
 export function AppShell() {
   const hydrated = useHydrated();
-  const totalCorrect = useProgress((s) => s.totalCorrect);
+  const profile = useActiveProfile();
 
   return (
     <div className="paper-grain min-h-dvh">
-      <div className="mx-auto flex w-full max-w-3xl flex-col px-4 pb-16 pt-5 sm:px-6 sm:pt-8">
-        <header className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
-          <div>
-            <h1 className="font-display text-4xl italic leading-none tracking-tight sm:text-5xl">
-              Conjuga
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Tempos verbais em espanhol, com correção na hora.
-            </p>
-          </div>
-          <p className="text-sm tabular-nums text-muted-foreground">
-            {hydrated ? `${totalCorrect} acerto${totalCorrect === 1 ? "" : "s"}` : "—"}
+      <div className="mx-auto flex w-full max-w-3xl flex-col px-3 pb-24 pt-3 sm:px-6 sm:pb-16 sm:pt-6">
+        <header className="mb-2 flex items-center justify-between gap-3 sm:mb-4">
+          <h1 className="font-display text-[2rem] italic leading-none tracking-tight sm:text-5xl">
+            Conjuga
+          </h1>
+          <p className="text-right text-xs tabular-nums text-muted-foreground sm:text-sm">
+            {hydrated ? (
+              <>
+                <span className="block font-medium text-foreground">{profile.name}</span>
+                {profile.totalCorrect} acerto{profile.totalCorrect === 1 ? "" : "s"}
+              </>
+            ) : (
+              "—"
+            )}
           </p>
         </header>
 
         <Tabs defaultValue="praticar">
-          <TabsList className="grid h-auto grid-cols-2 gap-1 sm:grid-cols-4">
-            <TabsTrigger value="praticar" className="min-h-11 gap-1.5">
-              <PenLine className="size-4" />
+          <TabsList>
+            <TabsTrigger value="praticar" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+              <PenLine className="hidden size-4 sm:block" />
               Praticar
             </TabsTrigger>
-            <TabsTrigger value="teoria" className="min-h-11 gap-1.5">
-              <GraduationCap className="size-4" />
+            <TabsTrigger value="teoria" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+              <GraduationCap className="hidden size-4 sm:block" />
               Teoria
             </TabsTrigger>
-            <TabsTrigger value="guia" className="min-h-11 gap-1.5">
-              <Book className="size-4" />
+            <TabsTrigger value="guia" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+              <Book className="hidden size-4 sm:block" />
               Guia
             </TabsTrigger>
-            <TabsTrigger value="progresso" className="min-h-11 gap-1.5">
-              <LayoutList className="size-4" />
+            <TabsTrigger value="progresso" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+              <LayoutList className="hidden size-4 sm:block" />
               Progresso
             </TabsTrigger>
           </TabsList>

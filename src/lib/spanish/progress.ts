@@ -17,7 +17,8 @@ interface Tally {
   wrong: number;
 }
 
-interface ProgressState {
+export interface ProfileStats {
+  name: string;
   totalCorrect: number;
   totalWrong: number;
   streak: number;
@@ -25,8 +26,16 @@ interface ProgressState {
   lastDay: string | null;
   byKey: Record<string, Tally>;
   recent: Attempt[];
+}
+
+interface ProgressState {
+  activeId: string;
+  profiles: Record<string, ProfileStats>;
   record: (attempt: Attempt) => void;
   reset: () => void;
+  addPerson: (name: string) => string;
+  setActive: (id: string) => void;
+  removePerson: (id: string) => void;
 }
 
 function todayStamp(): string {
@@ -38,43 +47,128 @@ function keyOf(verbId: string, tense: TenseId): string {
   return `${tense}:${verbId}`;
 }
 
-const empty = {
-  totalCorrect: 0,
-  totalWrong: 0,
-  streak: 0,
-  bestStreak: 0,
-  lastDay: null as string | null,
-  byKey: {} as Record<string, Tally>,
-  recent: [] as Attempt[],
-};
+function slugName(name: string): string {
+  const base = name
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return base || "pessoa";
+}
+
+export function emptyProfile(name: string): ProfileStats {
+  return {
+    name,
+    totalCorrect: 0,
+    totalWrong: 0,
+    streak: 0,
+    bestStreak: 0,
+    lastDay: null,
+    byKey: {},
+    recent: [],
+  };
+}
+
+const DEFAULT_ID = "eu";
 
 export const useProgress = create<ProgressState>()(
   persist(
     (set, get) => ({
-      ...empty,
+      activeId: DEFAULT_ID,
+      profiles: { [DEFAULT_ID]: emptyProfile("Eu") },
       record: (attempt) => {
-        const state = get();
+        const { activeId, profiles } = get();
+        const current = profiles[activeId] ?? emptyProfile("Eu");
         const key = keyOf(attempt.verbId, attempt.tense);
-        const prev = state.byKey[key] ?? { correct: 0, wrong: 0 };
+        const prev = current.byKey[key] ?? { correct: 0, wrong: 0 };
         const nextTally = attempt.ok
           ? { correct: prev.correct + 1, wrong: prev.wrong }
           : { correct: prev.correct, wrong: prev.wrong + 1 };
-        const streak = attempt.ok ? state.streak + 1 : 0;
+        const streak = attempt.ok ? current.streak + 1 : 0;
         set({
-          totalCorrect: state.totalCorrect + (attempt.ok ? 1 : 0),
-          totalWrong: state.totalWrong + (attempt.ok ? 0 : 1),
-          streak,
-          bestStreak: Math.max(state.bestStreak, streak),
-          lastDay: todayStamp(),
-          byKey: { ...state.byKey, [key]: nextTally },
-          recent: [attempt, ...state.recent].slice(0, 40),
+          profiles: {
+            ...profiles,
+            [activeId]: {
+              ...current,
+              totalCorrect: current.totalCorrect + (attempt.ok ? 1 : 0),
+              totalWrong: current.totalWrong + (attempt.ok ? 0 : 1),
+              streak,
+              bestStreak: Math.max(current.bestStreak, streak),
+              lastDay: todayStamp(),
+              byKey: { ...current.byKey, [key]: nextTally },
+              recent: [attempt, ...current.recent].slice(0, 40),
+            },
+          },
         });
       },
-      reset: () => set({ ...empty }),
+      reset: () => {
+        const { activeId, profiles } = get();
+        const current = profiles[activeId];
+        set({
+          profiles: {
+            ...profiles,
+            [activeId]: emptyProfile(current?.name ?? "Eu"),
+          },
+        });
+      },
+      addPerson: (name) => {
+        const trimmed = name.trim() || "Alguém";
+        let id = slugName(trimmed);
+        const { profiles } = get();
+        if (profiles[id]) id = `${id}-${Date.now().toString(36)}`;
+        set({
+          activeId: id,
+          profiles: { ...profiles, [id]: emptyProfile(trimmed) },
+        });
+        return id;
+      },
+      setActive: (id) => {
+        if (get().profiles[id]) set({ activeId: id });
+      },
+      removePerson: (id) => {
+        const { profiles, activeId } = get();
+        const ids = Object.keys(profiles);
+        if (ids.length <= 1 || !profiles[id]) return;
+        const next = { ...profiles };
+        delete next[id];
+        const nextActive = activeId === id ? Object.keys(next)[0] : activeId;
+        set({ profiles: next, activeId: nextActive ?? DEFAULT_ID });
+      },
     }),
-    { name: "conjuga-progress-v1" },
+    {
+      name: "conjuga-progress-v1",
+      version: 2,
+      migrate: (persisted) => {
+        const raw = persisted as Record<string, unknown> | null;
+        if (raw && raw.profiles && raw.activeId) {
+          return raw as unknown as ProgressState;
+        }
+        const legacy = raw as Partial<ProfileStats> | null;
+        return {
+          activeId: DEFAULT_ID,
+          profiles: {
+            [DEFAULT_ID]: {
+              ...emptyProfile("Eu"),
+              totalCorrect: legacy?.totalCorrect ?? 0,
+              totalWrong: legacy?.totalWrong ?? 0,
+              streak: legacy?.streak ?? 0,
+              bestStreak: legacy?.bestStreak ?? 0,
+              lastDay: legacy?.lastDay ?? null,
+              byKey: legacy?.byKey ?? {},
+              recent: legacy?.recent ?? [],
+            },
+          },
+        };
+      },
+    },
   ),
 );
+
+export function useActiveProfile(): ProfileStats {
+  return useProgress((s) => s.profiles[s.activeId] ?? emptyProfile("Eu"));
+}
 
 export function comboKey(verbId: string, tense: TenseId): string {
   return keyOf(verbId, tense);
