@@ -12,4 +12,4 @@ dist/
 *.log
 screenshots/
 artifacts/
-.DS_Store
+site/

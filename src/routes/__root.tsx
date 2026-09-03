@@ -4,8 +4,9 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Conjuga";
+const base = import.meta.env.BASE_URL;
 
-export const Route = createRootRoute({
+const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -19,7 +20,7 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#1e4a44" },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/svg+xml", href: `${base}favicon.svg` },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",
@@ -31,8 +32,8 @@ export const Route = createRootRoute({
         href: "https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&display=swap",
       },
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/__grok/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
+      { rel: "manifest", href: `${base}__grok/manifest.webmanifest` },
+      { rel: "apple-touch-icon", href: `${base}__grok/icon-180.png` },
     ],
   }),
   component: () => (
@@ -50,3 +51,5 @@ export const Route = createRootRoute({
     </html>
   ),
 });
+
+export { Route };

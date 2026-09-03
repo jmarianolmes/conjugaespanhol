@@ -2,7 +2,9 @@
 
 Caderno para praticar **tempos verbais em espanhol**. Escolha o tempo, depois o verbo, escreva yo / tú / él / nosotros / vosotros / ellos e receba correção na hora.
 
-Repositório: [github.com/jmarianolmes/conjugaespanhol](https://github.com/jmarianolmes/conjugaespanhol)
+**Site (grátis):** [jmarianolmes.github.io/conjugaespanhol](https://jmarianolmes.github.io/conjugaespanhol/)
+
+Código: [github.com/jmarianolmes/conjugaespanhol](https://github.com/jmarianolmes/conjugaespanhol)
 
 Feito para celular e computador. Sem conta: o progresso fica neste navegador, e dá para ter um caderno por pessoa no mesmo aparelho.
 
@@ -31,7 +33,10 @@ O app sobe em `http://localhost:8080`.
 ```bash
 npm run build
 npm run typecheck
+npm run build:pages
 ```
+
+`build:pages` gera a pasta estática publicada no GitHub Pages.
 
 ## Uso
 
