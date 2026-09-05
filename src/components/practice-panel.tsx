@@ -215,26 +215,34 @@ export function PracticePanel() {
 
       {practicing && verb && tense ? (
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="truncate">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
               {verb.meaningPt}
-              <span className="mx-1.5 text-border">·</span>-{verb.ending}
-              {verb.tags.includes("irregular") ? " · irregular" : ""}
-              {verb.tags.includes("stem-change") ? " · radical" : ""}
             </span>
-            <span className="ml-auto tabular-nums">
+            <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 font-display text-sm font-semibold text-foreground">
+              -{verb.ending}
+            </span>
+            {verb.tags.includes("irregular") ? (
+              <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
+                irregular
+              </span>
+            ) : null}
+            {verb.tags.includes("stem-change") ? (
+              <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
+                radical
+              </span>
+            ) : null}
+            <span className="rounded-lg bg-primary px-2.5 py-1.5 text-sm font-semibold tabular-nums text-primary-foreground">
               {doneCount}/{slots.length}
             </span>
             {endings ? (
               <button
                 type="button"
-                className="flex h-8 items-center gap-1 text-muted-foreground hover:text-foreground"
+                className="ml-auto flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-semibold text-foreground hover:bg-surface-2"
                 onClick={() => setShowHint((v) => !v)}
               >
-                <Lightbulb className="size-3.5" />
-                <span className="sr-only sm:not-sr-only">
-                  {showHint ? "Ocultar" : "Dica"}
-                </span>
+                <Lightbulb className="size-4" />
+                {showHint ? "Ocultar" : "Dica"}
               </button>
             ) : null}
           </div>

@@ -137,13 +137,17 @@ export function PhrasesPanel() {
         </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        {verb.infinitive}
-        <span className="mx-1.5 text-border">·</span>
-        {tenseLabelFor(phrase)}
-        <span className="mx-1.5 text-border">·</span>
-        {personHint(phrase)}
-      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 font-display text-base font-semibold text-foreground">
+          {verb.infinitive}
+        </span>
+        <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
+          {tenseLabelFor(phrase)}
+        </span>
+        <span className="rounded-lg bg-primary px-2.5 py-1.5 text-sm font-semibold text-primary-foreground">
+          {personHint(phrase)}
+        </span>
+      </div>
 
       <p className="font-display text-xl leading-snug sm:text-2xl">
         {phrase.before}
