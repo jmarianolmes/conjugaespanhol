@@ -2,7 +2,7 @@
 
 Caderno para praticar **tempos verbais em espanhol**. Escolha o tempo, depois o verbo, escreva yo / tú / él / nosotros / vosotros / ellos e receba correção na hora.
 
-**Site (grátis):** [jmarianolmes.github.io/conjugaespanhol](https://jmarianolmes.github.io/conjugaespanhol/)
+**Site (grátis):** [jmarianolmes.github.io/conjugaespanhol/docs](https://jmarianolmes.github.io/conjugaespanhol/docs/)
 
 Código: [github.com/jmarianolmes/conjugaespanhol](https://github.com/jmarianolmes/conjugaespanhol)
 

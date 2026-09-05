@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 /**
- * Static build for GitHub Pages at /conjugaespanhol/.
+ * Static build for GitHub Pages at /conjugaespanhol/docs/.
  * Does not replace `npm run build` (Vercel).
  */
-import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -30,6 +37,7 @@ if (!source) {
 }
 
 const site = join(root, "site");
+rmSync(site, { recursive: true, force: true });
 mkdirSync(site, { recursive: true });
 cpSync(source, site, { recursive: true });
 
@@ -59,7 +67,11 @@ if (!existsSync(index)) {
 }
 
 writeFileSync(join(site, ".nojekyll"), "");
-writeFileSync(join(site, "404.html"), existsSync(index) ? "" : "");
 if (existsSync(index)) cpSync(index, join(site, "404.html"));
 
-console.log("[build-pages] wrote", site, "from", source);
+const docs = join(root, "docs");
+rmSync(docs, { recursive: true, force: true });
+mkdirSync(docs, { recursive: true });
+cpSync(site, docs, { recursive: true });
+
+console.log("[build-pages] wrote", docs, "from", source);

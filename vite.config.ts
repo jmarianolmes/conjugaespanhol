@@ -146,7 +146,7 @@ function authPopupPlugin(): Plugin {
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
 const pages = process.env.PAGES === "1";
-const pagesBase = "/conjugaespanhol/";
+const pagesBase = "/conjugaespanhol/docs/";
 
 export default defineConfig(({ command, isPreview }) => ({
   base: pages ? pagesBase : "/",
@@ -174,7 +174,7 @@ export default defineConfig(({ command, isPreview }) => ({
       pages
         ? {
             spa: { enabled: true },
-            router: { basepath: "/conjugaespanhol" },
+            router: { basepath: "/conjugaespanhol/docs" },
             pages: [{ path: "/" }],
             prerender: { enabled: true },
           }

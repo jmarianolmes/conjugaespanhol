@@ -1,16 +1,12 @@
 name: GitHub Pages
 
+# Manual only. O Pages deste repo publica a pasta principal (main).
+# O site estático fica em docs/ (URL: .../conjugaespanhol/docs/).
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -23,8 +19,3 @@ jobs:
           cache: npm
       - run: npm install
       - run: npm run build:pages
-      - uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          force_orphan: true
