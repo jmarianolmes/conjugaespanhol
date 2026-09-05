@@ -1,5 +1,6 @@
-import { Book, GraduationCap, LayoutList, PenLine } from "lucide-react";
+import { Book, GraduationCap, LayoutList, MessageSquareText, PenLine } from "lucide-react";
 import { GuidePanel } from "@/components/guide-panel";
+import { PhrasesPanel } from "@/components/phrases-panel";
 import { PracticePanel } from "@/components/practice-panel";
 import { StatsPanel } from "@/components/stats-panel";
 import { TheoryPanel } from "@/components/theory-panel";
@@ -32,25 +33,32 @@ export function AppShell() {
 
         <Tabs defaultValue="praticar">
           <TabsList>
-            <TabsTrigger value="praticar" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+            <TabsTrigger value="praticar" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
               <PenLine className="hidden size-4 sm:block" />
               Praticar
             </TabsTrigger>
-            <TabsTrigger value="teoria" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+            <TabsTrigger value="frases" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+              <MessageSquareText className="hidden size-4 sm:block" />
+              Frases
+            </TabsTrigger>
+            <TabsTrigger value="teoria" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
               <GraduationCap className="hidden size-4 sm:block" />
               Teoria
             </TabsTrigger>
-            <TabsTrigger value="guia" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+            <TabsTrigger value="guia" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
               <Book className="hidden size-4 sm:block" />
               Guia
             </TabsTrigger>
-            <TabsTrigger value="progresso" className="gap-1 px-1 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+            <TabsTrigger value="progresso" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
               <LayoutList className="hidden size-4 sm:block" />
               Progresso
             </TabsTrigger>
           </TabsList>
           <TabsContent value="praticar">
             <PracticePanel />
+          </TabsContent>
+          <TabsContent value="frases">
+            <PhrasesPanel />
           </TabsContent>
           <TabsContent value="teoria">
             <TheoryPanel />

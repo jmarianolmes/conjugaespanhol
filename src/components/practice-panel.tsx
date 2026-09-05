@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState } from "react";
 import { Check, ChevronRight, Dices, Eraser, Lightbulb } from "lucide-react";
-import { AccentBar } from "@/components/accent-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,16 +29,6 @@ import { cn } from "@/lib/utils";
 
 type Status = "idle" | "correct" | "wrong";
 
-function insertAtCursor(input: HTMLInputElement, mark: string): string {
-  const start = input.selectionStart ?? input.value.length;
-  const end = input.selectionEnd ?? input.value.length;
-  const next = input.value.slice(0, start) + mark + input.value.slice(end);
-  input.value = next;
-  const caret = start + mark.length;
-  input.setSelectionRange(caret, caret);
-  return next;
-}
-
 function shortLabel(slot: Slot): string {
   if (slot.id === "forma") return "forma";
   if (slot.id === "el") return "él";
@@ -57,8 +46,8 @@ export function PracticePanel() {
   const [status, setStatus] = useState<Record<string, Status>>({});
   const [scored, setScored] = useState<Record<string, boolean>>({});
   const [showHint, setShowHint] = useState(false);
-  const focusedRef = useRef<HTMLInputElement | null>(null);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const nextBtnRef = useRef<HTMLButtonElement | null>(null);
   const statusRef = useRef(status);
   statusRef.current = status;
 
@@ -85,6 +74,10 @@ export function PracticePanel() {
   function onVerbChange(next: string) {
     setVerbId(next);
     resetAnswers();
+    requestAnimationFrame(() => {
+      const first = slots[0];
+      if (first) inputRefs.current[first.id]?.focus();
+    });
   }
 
   function shuffle() {
@@ -104,6 +97,10 @@ export function PracticePanel() {
     const next = VERBS[(index + 1) % VERBS.length];
     setVerbId(next.id);
     resetAnswers();
+    requestAnimationFrame(() => {
+      const first = visibleSlots[0];
+      if (first) inputRefs.current[first.id]?.focus();
+    });
   }
 
   function setValue(slotId: string, value: string) {
@@ -146,20 +143,12 @@ export function PracticePanel() {
         return;
       }
     }
-  }
-
-  function insertMark(mark: string) {
-    const input = focusedRef.current;
-    if (!input) return;
-    const slotId = input.dataset.slot;
-    if (!slotId) return;
-    const next = insertAtCursor(input, mark);
-    setValue(slotId, next);
-    input.focus();
+    requestAnimationFrame(() => nextBtnRef.current?.focus());
   }
 
   const doneCount = slots.filter((slot) => status[slot.id] === "correct").length;
   const allCorrect = slots.length > 0 && doneCount === slots.length;
+  const lastSlotId = visibleSlots[visibleSlots.length - 1]?.id;
 
   return (
     <div className="flex flex-col gap-2">
@@ -231,6 +220,7 @@ export function PracticePanel() {
               {verb.meaningPt}
               <span className="mx-1.5 text-border">·</span>-{verb.ending}
               {verb.tags.includes("irregular") ? " · irregular" : ""}
+              {verb.tags.includes("stem-change") ? " · radical" : ""}
             </span>
             <span className="ml-auto tabular-nums">
               {doneCount}/{slots.length}
@@ -262,6 +252,7 @@ export function PracticePanel() {
               const accentHint =
                 state === "wrong" &&
                 checkAnswer(verb, tense.id, slot.id, values[slot.id] ?? "").accentOnly;
+              const isLast = slot.id === lastSlotId;
               return (
                 <div
                   key={slot.id}
@@ -290,7 +281,7 @@ export function PracticePanel() {
                       autoCapitalize="off"
                       autoCorrect="off"
                       spellCheck={false}
-                      enterKeyHint="next"
+                      enterKeyHint={isLast ? "go" : "next"}
                       placeholder="forma"
                       aria-label={`Conjugar ${verb.infinitive}, ${slot.label}`}
                       className={cn(
@@ -299,9 +290,6 @@ export function PracticePanel() {
                         state === "wrong" &&
                           "border-destructive bg-error-bg focus-visible:ring-destructive",
                       )}
-                      onFocus={(event) => {
-                        focusedRef.current = event.currentTarget;
-                      }}
                       onChange={(event) => setValue(slot.id, event.target.value)}
                       onKeyDown={(event) => {
                         if (event.key !== "Enter") return;
@@ -334,10 +322,13 @@ export function PracticePanel() {
             })}
           </div>
 
-          <AccentBar onInsert={insertMark} />
-
           <div className="flex gap-2">
-            <Button type="button" className="h-10 flex-1 sm:h-11" onClick={nextVerb}>
+            <Button
+              ref={nextBtnRef}
+              type="button"
+              className="h-10 flex-1 sm:h-11"
+              onClick={nextVerb}
+            >
               {allCorrect ? "Seguir" : "Próximo verbo"}
               <ChevronRight className="size-4" />
             </Button>

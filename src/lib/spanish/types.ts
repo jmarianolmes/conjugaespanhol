@@ -68,7 +68,7 @@ export interface VerbDef {
   ending: Ending;
   meaningPt: string;
   tags: Array<
-    "regular" | "irregular" | "ortografico" | "participio-irregular"
+    "regular" | "irregular" | "ortografico" | "participio-irregular" | "stem-change"
   >;
   usage: string;
   examples: Array<{ es: string; pt: string }>;

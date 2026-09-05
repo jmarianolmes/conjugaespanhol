@@ -1,4 +1,5 @@
 import { checkAnswer, formFor } from "./conjugate";
+import { expectedFor, PHRASES } from "./phrases";
 import { getVerb } from "./verbs";
 
 const cases: Array<[string, Parameters<typeof formFor>[1], Parameters<typeof formFor>[2], string]> = [
@@ -61,6 +62,35 @@ const cases: Array<[string, Parameters<typeof formFor>[1], Parameters<typeof for
   ["dar", "subjuntivo", "yo", "dé"],
   ["dar", "preterito", "ellos", "dieron"],
   ["dar", "imperfecto_subj", "yo", "diera"],
+  ["pedir", "presente", "yo", "pido"],
+  ["pedir", "presente", "nosotros", "pedimos"],
+  ["pedir", "preterito", "el", "pidió"],
+  ["pedir", "preterito", "nosotros", "pedimos"],
+  ["pedir", "gerundio", "forma", "pidiendo"],
+  ["pedir", "subjuntivo", "tu", "pidas"],
+  ["decir", "presente", "yo", "digo"],
+  ["decir", "preterito", "el", "dijo"],
+  ["decir", "participio", "forma", "dicho"],
+  ["decir", "imperativo", "tu", "di"],
+  ["decir", "futuro", "yo", "diré"],
+  ["venir", "presente", "yo", "vengo"],
+  ["venir", "futuro", "nosotros", "vendremos"],
+  ["salir", "presente", "yo", "salgo"],
+  ["salir", "imperativo", "tu", "sal"],
+  ["poner", "preterito", "tu", "pusiste"],
+  ["poner", "participio", "forma", "puesto"],
+  ["saber", "presente", "yo", "sé"],
+  ["saber", "preterito", "yo", "supe"],
+  ["conocer", "presente", "yo", "conozco"],
+  ["llegar", "preterito", "yo", "llegué"],
+  ["volver", "presente", "yo", "vuelvo"],
+  ["volver", "participio", "forma", "vuelto"],
+  ["dormir", "presente", "yo", "duermo"],
+  ["dormir", "preterito", "el", "durmió"],
+  ["dormir", "gerundio", "forma", "durmiendo"],
+  ["pensar", "presente", "yo", "pienso"],
+  ["empezar", "preterito", "yo", "empecé"],
+  ["llamar", "presente", "yo", "llamo"],
 ];
 
 export function runSelfCheck(): string[] {
@@ -74,6 +104,17 @@ export function runSelfCheck(): string[] {
     const check = checkAnswer(verb, tense, person, expected);
     if (!check.ok) {
       failures.push(`${verbId} ${tense} ${person}: checkAnswer rejected the expected form`);
+    }
+  }
+  for (const phrase of PHRASES) {
+    const got = expectedFor(phrase);
+    if (!got) {
+      failures.push(`phrase ${phrase.id}: empty expected form`);
+    }
+    const verb = getVerb(phrase.verbId);
+    const check = checkAnswer(verb, phrase.tense, phrase.person, got);
+    if (!check.ok) {
+      failures.push(`phrase ${phrase.id}: engine rejected ${got}`);
     }
   }
   return failures;
