@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Static build for GitHub Pages at /conjugaespanhol/docs/.
+ * Static build for GitHub Pages at /conjugaespanhol/.
  * Does not replace `npm run build` (Vercel).
  */
 import {
@@ -15,6 +15,21 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
+const published = [
+  "index.html",
+  "404.html",
+  "favicon.svg",
+  "og.jpg",
+  "_shell.html",
+  "static",
+  "assets",
+  "__grok",
+];
+
+for (const name of published) {
+  rmSync(join(root, name), { recursive: true, force: true });
+}
+
 process.env.PAGES = "1";
 
 const build = spawnSync(
@@ -69,9 +84,29 @@ if (!existsSync(index)) {
 writeFileSync(join(site, ".nojekyll"), "");
 if (existsSync(index)) cpSync(index, join(site, "404.html"));
 
+for (const name of readdirSync(site)) {
+  cpSync(join(site, name), join(root, name), { recursive: true });
+}
+
 const docs = join(root, "docs");
 rmSync(docs, { recursive: true, force: true });
 mkdirSync(docs, { recursive: true });
-cpSync(site, docs, { recursive: true });
+writeFileSync(
+  join(docs, "index.html"),
+  `<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0; url=../" />
+    <link rel="canonical" href="https://jmarianolmes.github.io/conjugaespanhol/" />
+    <title>Conjuga</title>
+    <script>location.replace("../");</script>
+  </head>
+  <body>
+    <p><a href="../">Abrir Conjuga</a></p>
+  </body>
+</html>
+`,
+);
 
-console.log("[build-pages] wrote", docs, "from", source);
+console.log("[build-pages] wrote GitHub Pages site to", root, "from", source);

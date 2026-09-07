@@ -1,7 +1,7 @@
 name: GitHub Pages
 
 # Manual only. O Pages deste repo publica a pasta principal (main).
-# O site estático fica em docs/ (URL: .../conjugaespanhol/docs/).
+# O site estático fica em index.html + static/ (URL: .../conjugaespanhol/).
 on:
   workflow_dispatch:
 

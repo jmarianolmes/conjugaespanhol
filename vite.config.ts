@@ -146,10 +146,15 @@ function authPopupPlugin(): Plugin {
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
 const pages = process.env.PAGES === "1";
-const pagesBase = "/conjugaespanhol/docs/";
+const pagesBase = "/conjugaespanhol/";
 
 export default defineConfig(({ command, isPreview }) => ({
   base: pages ? pagesBase : "/",
+  build: {
+    // Keep hashed files out of /assets so Nitro does not treat the
+    // GitHub Pages bundle as source CSS during `npm run build`.
+    assetsDir: pages ? "static" : "assets",
+  },
   server: {
     host: "0.0.0.0",
     port: 8080,
@@ -174,7 +179,7 @@ export default defineConfig(({ command, isPreview }) => ({
       pages
         ? {
             spa: { enabled: true },
-            router: { basepath: "/conjugaespanhol/docs" },
+            router: { basepath: "/conjugaespanhol" },
             pages: [{ path: "/" }],
             prerender: { enabled: true },
           }
@@ -188,6 +193,9 @@ export default defineConfig(({ command, isPreview }) => ({
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
+            // The GitHub Pages homepage lives at ./index.html. Nitro would
+            // otherwise treat it as the Vercel HTML shell and break SSR.
+            ...(pages ? {} : { renderer: false as const }),
           }),
         ]
       : []),
