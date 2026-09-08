@@ -46,6 +46,7 @@ export function PracticePanel() {
   const [status, setStatus] = useState<Record<string, Status>>({});
   const [scored, setScored] = useState<Record<string, boolean>>({});
   const [showHint, setShowHint] = useState(false);
+  const [diceSpin, setDiceSpin] = useState(false);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const nextBtnRef = useRef<HTMLButtonElement | null>(null);
   const statusRef = useRef(status);
@@ -83,6 +84,8 @@ export function PracticePanel() {
   function shuffle() {
     const nextTense = TENSES[Math.floor(Math.random() * TENSES.length)];
     const nextVerb = VERBS[Math.floor(Math.random() * VERBS.length)];
+    setDiceSpin(true);
+    window.setTimeout(() => setDiceSpin(false), 520);
     setTenseId(nextTense.id);
     setVerbId(nextVerb.id);
     resetAnswers();
@@ -208,7 +211,7 @@ export function PracticePanel() {
             onClick={shuffle}
             aria-label="Sortear tempo e verbo"
           >
-            <Dices className="size-4" />
+            <Dices className={cn("size-4", diceSpin && "dice-spin")} />
           </Button>
         ) : null}
       </div>

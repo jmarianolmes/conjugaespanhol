@@ -19,6 +19,7 @@ import {
   checkAnswer,
   expectedFor,
   getVerb,
+  phraseStats,
   phrasesForTense,
   tenseLabelFor,
   useProgress,
@@ -46,10 +47,15 @@ export function PhrasesPanel() {
   const [value, setValue] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [scored, setScored] = useState(false);
+  const [rolling, setRolling] = useState(false);
+  const [dealKey, setDealKey] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const nextBtnRef = useRef<HTMLButtonElement | null>(null);
+  const rollingRef = useRef(false);
+  const holdUntilRef = useRef(0);
 
   const pool = useMemo(() => phrasesForTense(tenseFilter), [tenseFilter]);
+  const stats = phraseStats(pool);
   const phrase = pool[index % pool.length] ?? pool[0];
   const verb = phrase ? getVerb(phrase.verbId) : null;
   const expected = phrase ? expectedFor(phrase) : "";
@@ -60,30 +66,53 @@ export function PhrasesPanel() {
     setScored(false);
   }
 
-  function goTo(next: PhrasePrompt, list: PhrasePrompt[]) {
+  function landOn(next: PhrasePrompt, list: PhrasePrompt[]) {
     const at = list.findIndex((item) => item.id === next.id);
     setIndex(at >= 0 ? at : 0);
     resetField();
+    setDealKey((n) => n + 1);
     requestAnimationFrame(() => inputRef.current?.focus());
+  }
+
+  function rollTo(next: PhrasePrompt, list: PhrasePrompt[]) {
+    if (rollingRef.current || list.length === 0) return;
+    rollingRef.current = true;
+    setRolling(true);
+    resetField();
+    let ticks = 0;
+    const ticksMax = 6;
+    const timer = window.setInterval(() => {
+      ticks += 1;
+      const preview = pickPhrase(list, next.id);
+      const at = list.findIndex((item) => item.id === preview.id);
+      setIndex(at >= 0 ? at : 0);
+      if (ticks >= ticksMax) {
+        window.clearInterval(timer);
+        rollingRef.current = false;
+        setRolling(false);
+        landOn(next, list);
+      }
+    }, 70);
   }
 
   function onFilter(next: TenseId | "all") {
     setTenseFilter(next);
     const list = phrasesForTense(next);
-    goTo(list[0] ?? PHRASES[0], list);
+    landOn(list[0] ?? PHRASES[0], list);
   }
 
   function nextPhrase() {
-    if (!phrase) return;
-    goTo(pickPhrase(pool, phrase.id), pool);
+    if (!phrase || rollingRef.current) return;
+    rollTo(pickPhrase(pool, phrase.id), pool);
   }
 
   function evaluate(raw?: string): boolean {
-    if (!phrase || !verb) return false;
+    if (!phrase || !verb || rollingRef.current) return false;
     const given = (raw ?? value).trim();
     if (!given) return false;
     const result = checkAnswer(verb, phrase.tense, phrase.person, given);
     setStatus(result.ok ? "correct" : "wrong");
+    holdUntilRef.current = Date.now() + 800;
     if (!scored) {
       setScored(true);
       record({
@@ -119,6 +148,10 @@ export function PhrasesPanel() {
                   (item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.nameEs}
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {phrasesForTense(item.id).length}
+                      </span>
                     </SelectItem>
                   ),
                 )}
@@ -130,31 +163,56 @@ export function PhrasesPanel() {
           type="button"
           variant="outline"
           className="h-10 w-10 px-0 sm:h-11 sm:w-11"
-          onClick={() => goTo(pickPhrase(pool, phrase.id), pool)}
+          onClick={() => rollTo(pickPhrase(pool, phrase.id), pool)}
           aria-label="Sortear frase"
+          disabled={rolling}
         >
-          <Dices className="size-4" />
+          <Dices className={cn("size-4", rolling && "dice-spin")} />
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 font-display text-base font-semibold text-foreground">
-          {verb.infinitive}
-        </span>
-        <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-          {tenseLabelFor(phrase)}
-        </span>
-        <span className="rounded-lg bg-primary px-2.5 py-1.5 text-sm font-semibold text-primary-foreground">
-          {personHint(phrase)}
-        </span>
-      </div>
-
-      <p className="font-display text-xl leading-snug sm:text-2xl">
-        {phrase.before}
-        <span className="text-primary">___</span>
-        {phrase.after}
+      <p className="text-sm font-medium text-foreground">
+        {stats.count} frases · {stats.tenses} tempos
       </p>
-      <p className="text-sm text-muted-foreground">{phrase.pt}</p>
+
+      <div key={dealKey} className={cn("flex flex-col gap-3", !rolling && "phrase-in")}>
+        <div className={cn("flex flex-wrap items-center gap-2", rolling && "rolling-blur")}>
+          <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 font-display text-base font-semibold text-foreground">
+            {verb.infinitive}
+          </span>
+          <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
+            {tenseLabelFor(phrase)}
+          </span>
+          <span className="chip-pop rounded-lg bg-primary px-2.5 py-1.5 text-sm font-semibold text-primary-foreground">
+            {personHint(phrase)}
+          </span>
+        </div>
+
+        <p
+          className={cn(
+            "font-display text-xl leading-snug sm:text-2xl",
+            rolling && "rolling-blur",
+            status === "correct" && "text-success",
+          )}
+        >
+          {status === "idle" ? (
+            <>
+              {phrase.before}
+              <span className="text-primary">___</span>
+              {phrase.after}
+            </>
+          ) : (
+            <>
+              {phrase.before}
+              <span className={status === "wrong" ? "font-semibold text-destructive" : undefined}>
+                {expected}
+              </span>
+              {phrase.after}
+            </>
+          )}
+        </p>
+        <p className="text-sm text-muted-foreground">{phrase.pt}</p>
+      </div>
 
       <Input
         ref={inputRef}
@@ -162,9 +220,10 @@ export function PhrasesPanel() {
         autoCapitalize="off"
         autoCorrect="off"
         spellCheck={false}
-        enterKeyHint="go"
+        enterKeyHint={status === "correct" ? "go" : "done"}
         placeholder="complete o verbo"
         aria-label="Forma verbal da frase"
+        disabled={rolling}
         className={cn(
           "h-11 font-display text-lg",
           status === "correct" && "border-success bg-success-bg focus-visible:ring-success",
@@ -177,31 +236,43 @@ export function PhrasesPanel() {
         onKeyDown={(event) => {
           if (event.key !== "Enter") return;
           event.preventDefault();
-          if (evaluate(event.currentTarget.value)) {
-            requestAnimationFrame(() => nextBtnRef.current?.focus());
+          if (rolling) return;
+          if (status === "correct") {
+            if (Date.now() < holdUntilRef.current) return;
+            nextPhrase();
+            return;
           }
+          evaluate(event.currentTarget.value);
         }}
         onBlur={(event) => {
-          if (event.currentTarget.value.trim()) evaluate(event.currentTarget.value);
+          if (event.currentTarget.value.trim() && status === "idle") {
+            evaluate(event.currentTarget.value);
+          }
         }}
       />
 
       {status === "wrong" ? (
-        <p className="text-sm">
-          <span className="text-destructive">Não é essa. </span>
-          <span className="font-display">{expected}</span>
+        <p className="feedback-in rounded-lg bg-error-bg px-3 py-2 text-sm">
+          <span className="font-semibold text-destructive">Não é essa. A forma é </span>
+          <span className="font-display text-base font-semibold text-foreground">{expected}</span>
         </p>
       ) : null}
 
       {status === "correct" ? (
-        <p className="flex items-center gap-1.5 text-sm text-success">
+        <p className="feedback-in flex items-center gap-1.5 rounded-lg bg-success-bg px-3 py-2 text-sm font-semibold text-success">
           <Check className="size-4" />
-          {expected}
+          Certo: {expected}
         </p>
       ) : null}
 
-      <Button ref={nextBtnRef} type="button" className="h-10 sm:h-11" onClick={nextPhrase}>
-        Seguir
+      <Button
+        ref={nextBtnRef}
+        type="button"
+        className="h-10 sm:h-11"
+        onClick={nextPhrase}
+        disabled={rolling}
+      >
+        {status === "idle" ? "Pular" : "Seguir"}
         <ChevronRight className="size-4" />
       </Button>
     </div>
