@@ -1,5 +1,6 @@
 import { checkAnswer, formFor } from "./conjugate";
 import { expectedFor, PHRASES } from "./phrases";
+import { checkPrep, PREP_PROMPTS } from "./prepositions";
 import { getVerb } from "./verbs";
 
 const cases: Array<[string, Parameters<typeof formFor>[1], Parameters<typeof formFor>[2], string]> = [
@@ -115,6 +116,18 @@ export function runSelfCheck(): string[] {
     const check = checkAnswer(verb, phrase.tense, phrase.person, got);
     if (!check.ok) {
       failures.push(`phrase ${phrase.id}: engine rejected ${got}`);
+    }
+  }
+  for (const prompt of PREP_PROMPTS) {
+    const ok = checkPrep(prompt, prompt.prep);
+    if (!ok.ok) failures.push(`prep ${prompt.id}: rejected canonical ${prompt.prep}`);
+    if (prompt.before.trimEnd().toLowerCase().endsWith(prompt.prep)) {
+      failures.push(`prep ${prompt.id}: sentence already contains ${prompt.prep} before the blank`);
+    }
+    for (const alias of prompt.aliases ?? []) {
+      if (!checkPrep(prompt, alias).ok) {
+        failures.push(`prep ${prompt.id}: rejected alias ${alias}`);
+      }
     }
   }
   return failures;

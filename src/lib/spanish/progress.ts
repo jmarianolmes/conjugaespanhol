@@ -2,11 +2,14 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { PersonId, TenseId } from "./types";
 
+export type PracticeKind = TenseId | "prep";
+export type PracticePerson = PersonId | "forma" | "prep";
+
 export interface Attempt {
   at: number;
   verbId: string;
-  tense: TenseId;
-  person: PersonId | "forma";
+  tense: PracticeKind;
+  person: PracticePerson;
   given: string;
   expected: string;
   ok: boolean;
@@ -43,7 +46,7 @@ function todayStamp(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function keyOf(verbId: string, tense: TenseId): string {
+function keyOf(verbId: string, tense: PracticeKind): string {
   return `${tense}:${verbId}`;
 }
 
@@ -170,7 +173,7 @@ export function useActiveProfile(): ProfileStats {
   return useProgress((s) => s.profiles[s.activeId] ?? emptyProfile("Eu"));
 }
 
-export function comboKey(verbId: string, tense: TenseId): string {
+export function comboKey(verbId: string, tense: PracticeKind): string {
   return keyOf(verbId, tense);
 }
 

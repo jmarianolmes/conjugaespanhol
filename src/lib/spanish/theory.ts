@@ -1,7 +1,7 @@
 import type { TenseId } from "./types";
 
 export interface TheoryBlock {
-  id: TenseId | "ser-estar" | "stem" | "accents" | "pronouns" | "haber";
+  id: TenseId | "ser-estar" | "stem" | "accents" | "pronouns" | "haber" | "preposiciones";
   title: string;
   kicker: string;
   body: string[];
@@ -249,6 +249,22 @@ export const THEORY: TheoryBlock[] = [
     examples: [
       { es: "He escrito tres mensajes.", pt: "Escrevi / tenho escrito três mensagens." },
       { es: "La tienda está abierta.", pt: "A loja está aberta." },
+    ],
+  },
+  {
+    id: "preposiciones",
+    title: "Preposições do dia a dia",
+    kicker: "a, de, en, por, para",
+    body: [
+      "por = causa, duração, caminho, preço, meio: gracias por, por dos horas, por el parque, por teléfono.",
+      "para = finalidade, prazo, destinatário, opinião: estudio para, para mañana, es para ti, para mí.",
+      "a = direção e hora: voy a casa, a las ocho. en = lugar parado: estoy en casa. de = origem e posse: soy de Brasil.",
+      "a + el vira al; de + el vira del. Com pessoa no objeto direto, o espanhol usa a: invito a María.",
+    ],
+    compare: "O português mistura por e para no mesmo 'para/por'. Em espanhol a troca muda o sentido: trabajo por la mañana (de manhã) × trabajo para una empresa (para uma empresa).",
+    examples: [
+      { es: "Voy a casa. Estoy en casa.", pt: "Vou para casa. Estou em casa." },
+      { es: "Este café es para ti. Gracias por tu ayuda.", pt: "Este café é para você. Obrigado pela ajuda." },
     ],
   },
 ];

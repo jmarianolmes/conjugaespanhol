@@ -1,7 +1,8 @@
-import { Book, GraduationCap, LayoutList, MessageSquareText, PenLine } from "lucide-react";
+import { Book, GraduationCap, LayoutList, Link2, MessageSquareText, PenLine } from "lucide-react";
 import { GuidePanel } from "@/components/guide-panel";
 import { PhrasesPanel } from "@/components/phrases-panel";
 import { PracticePanel } from "@/components/practice-panel";
+import { PrepositionsPanel } from "@/components/prepositions-panel";
 import { StatsPanel } from "@/components/stats-panel";
 import { TheoryPanel } from "@/components/theory-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -41,6 +42,10 @@ export function AppShell() {
               <MessageSquareText className="hidden size-4 sm:block" />
               Frases
             </TabsTrigger>
+            <TabsTrigger value="prep" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
+              <Link2 className="hidden size-4 sm:block" />
+              Prep.
+            </TabsTrigger>
             <TabsTrigger value="teoria" className="gap-1 px-0.5 text-xs sm:gap-1.5 sm:px-2 sm:text-sm">
               <GraduationCap className="hidden size-4 sm:block" />
               Teoria
@@ -59,6 +64,9 @@ export function AppShell() {
           </TabsContent>
           <TabsContent value="frases">
             <PhrasesPanel />
+          </TabsContent>
+          <TabsContent value="prep">
+            <PrepositionsPanel />
           </TabsContent>
           <TabsContent value="teoria">
             <TheoryPanel />

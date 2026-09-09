@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useHydrated } from "@/hooks/use-hydrated";
 import {
+  PREPOSITIONS,
   TENSES,
   VERBS,
   accuracy,
@@ -56,6 +57,19 @@ export function StatsPanel() {
       }
     }
     return { verb, correct, wrong, total: correct + wrong, pct: accuracy(correct, wrong) };
+  })
+    .filter((row) => row.total > 0)
+    .sort((a, b) => a.pct - b.pct);
+
+  const prepRows = PREPOSITIONS.map((prep) => {
+    const tally = byKey[`prep:${prep.id}`] ?? { correct: 0, wrong: 0 };
+    return {
+      prep,
+      correct: tally.correct,
+      wrong: tally.wrong,
+      total: tally.correct + tally.wrong,
+      pct: accuracy(tally.correct, tally.wrong),
+    };
   })
     .filter((row) => row.total > 0)
     .sort((a, b) => a.pct - b.pct);
@@ -197,6 +211,25 @@ export function StatsPanel() {
         </Card>
       ) : null}
 
+      {prepRows.length > 0 ? (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Preposições que pedem mais treino</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {prepRows.slice(0, 8).map((row) => (
+              <div key={row.prep.id} className="flex items-baseline justify-between gap-3 text-sm">
+                <span>
+                  <span className="font-display text-base">{row.prep.label}</span>
+                  <span className="text-muted-foreground"> — {row.prep.meaningPt}</span>
+                </span>
+                <span className="tabular-nums text-muted-foreground">{row.pct}%</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
       {mistakes.length > 0 ? (
         <Card>
           <CardHeader className="pb-3">
@@ -204,6 +237,18 @@ export function StatsPanel() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {mistakes.map((item) => {
+              if (item.tense === "prep") {
+                return (
+                  <div key={`${item.at}-${item.person}`} className="text-sm">
+                    <p className="text-muted-foreground">preposição · {item.expected}</p>
+                    <p>
+                      <span className="text-destructive">{item.given || "—"}</span>
+                      <span className="text-muted-foreground"> → </span>
+                      <span className="font-display text-base">{item.expected}</span>
+                    </p>
+                  </div>
+                );
+              }
               const verb = getVerb(item.verbId);
               const tense = getTense(item.tense);
               return (
