@@ -16,7 +16,9 @@ import {
   PREP_PROMPTS,
   PREPOSITIONS,
   checkPrep,
+  expectedPrep,
   getPrep,
+  isPrepChunk,
   prepStats,
   promptsForPrep,
   useProgress,
@@ -50,7 +52,7 @@ export function PrepositionsPanel() {
   const stats = prepStats(pool);
   const prompt = pool[index % pool.length] ?? pool[0];
   const meta = prompt ? getPrep(prompt.prep) : null;
-  const expected = prompt?.prep ?? "";
+  const expected = prompt ? expectedPrep(prompt) : "";
 
   function resetField() {
     setValue("");
@@ -182,7 +184,7 @@ export function PrepositionsPanel() {
             </span>
           ) : (
             <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-muted-foreground">
-              preposição
+              {isPrepChunk(prompt) ? "prep. + artigo" : "preposição"}
             </span>
           )}
         </div>
@@ -214,7 +216,7 @@ export function PrepositionsPanel() {
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint={status === "correct" ? "go" : "done"}
-        placeholder="a, de, en, por, para…"
+        placeholder="por la, en el, a las…"
         aria-label="Preposição da frase"
         disabled={rolling}
         className={cn(

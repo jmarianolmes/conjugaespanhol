@@ -259,7 +259,7 @@ export const THEORY: TheoryBlock[] = [
       "por = causa, duração, caminho, preço, meio: gracias por, por dos horas, por el parque, por teléfono.",
       "para = finalidade, prazo, destinatário, opinião: estudio para, para mañana, es para ti, para mí.",
       "a = direção e hora: voy a casa, a las ocho. en = lugar parado: estoy en casa. de = origem e posse: soy de Brasil.",
-      "a + el vira al; de + el vira del. Com pessoa no objeto direto, o espanhol usa a: invito a María.",
+      "a + el vira al; de + el vira del. Com o artigo: por la mañana, en el parque, a las ocho, de la estación.",
     ],
     compare: "O português mistura por e para no mesmo 'para/por'. Em espanhol a troca muda o sentido: trabajo por la mañana (de manhã) × trabajo para una empresa (para uma empresa).",
     examples: [

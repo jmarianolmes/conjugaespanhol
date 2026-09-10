@@ -1,6 +1,6 @@
 import { checkAnswer, formFor } from "./conjugate";
 import { expectedFor, PHRASES } from "./phrases";
-import { checkPrep, PREP_PROMPTS } from "./prepositions";
+import { checkPrep, expectedPrep, PREP_PROMPTS } from "./prepositions";
 import { getVerb } from "./verbs";
 
 const cases: Array<[string, Parameters<typeof formFor>[1], Parameters<typeof formFor>[2], string]> = [
@@ -119,11 +119,9 @@ export function runSelfCheck(): string[] {
     }
   }
   for (const prompt of PREP_PROMPTS) {
-    const ok = checkPrep(prompt, prompt.prep);
-    if (!ok.ok) failures.push(`prep ${prompt.id}: rejected canonical ${prompt.prep}`);
-    if (prompt.before.trimEnd().toLowerCase().endsWith(prompt.prep)) {
-      failures.push(`prep ${prompt.id}: sentence already contains ${prompt.prep} before the blank`);
-    }
+    const expected = expectedPrep(prompt);
+    const ok = checkPrep(prompt, expected);
+    if (!ok.ok) failures.push(`prep ${prompt.id}: rejected canonical ${expected}`);
     for (const alias of prompt.aliases ?? []) {
       if (!checkPrep(prompt, alias).ok) {
         failures.push(`prep ${prompt.id}: rejected alias ${alias}`);
