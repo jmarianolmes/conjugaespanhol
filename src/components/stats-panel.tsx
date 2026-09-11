@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useHydrated } from "@/hooks/use-hydrated";
 import {
@@ -18,13 +16,7 @@ import {
 export function StatsPanel() {
   const hydrated = useHydrated();
   const profile = useActiveProfile();
-  const activeId = useProgress((s) => s.activeId);
-  const profiles = useProgress((s) => s.profiles);
-  const addPerson = useProgress((s) => s.addPerson);
-  const setActive = useProgress((s) => s.setActive);
-  const removePerson = useProgress((s) => s.removePerson);
   const reset = useProgress((s) => s.reset);
-  const [newName, setNewName] = useState("");
 
   if (!hydrated) {
     return <p className="text-sm text-muted-foreground">Carregando o seu progresso…</p>;
@@ -33,7 +25,6 @@ export function StatsPanel() {
   const { totalCorrect, totalWrong, streak, bestStreak, byKey, recent } = profile;
   const total = totalCorrect + totalWrong;
   const pct = accuracy(totalCorrect, totalWrong);
-  const people = Object.entries(profiles);
 
   const tenseRows = TENSES.map((tense) => {
     let correct = 0;
@@ -81,61 +72,9 @@ export function StatsPanel() {
       <div>
         <h2 className="font-display text-3xl tracking-tight">Progresso</h2>
         <p className="mt-2 max-w-prose text-sm text-muted-foreground">
-          Sem conta. Cada pessoa neste aparelho tem o seu caderno — fica só no navegador.
+          Sem conta e sem login. O caderno fica só neste navegador. No telemóvel da outra pessoa, ou noutro computador, o progresso já é outro — de graça, sem cadastro.
         </p>
       </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Quem está praticando</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-2">
-            {people.map(([id, person]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setActive(id)}
-                className={
-                  id === activeId
-                    ? "h-10 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
-                    : "h-10 rounded-lg border border-border bg-surface px-3 text-sm"
-                }
-              >
-                {person.name}
-              </button>
-            ))}
-          </div>
-          <form
-            className="flex gap-2"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!newName.trim()) return;
-              addPerson(newName);
-              setNewName("");
-            }}
-          >
-            <Input
-              value={newName}
-              onChange={(event) => setNewName(event.target.value)}
-              placeholder="Nome de outra pessoa"
-              aria-label="Nome da nova pessoa"
-            />
-            <Button type="submit" variant="secondary">
-              Adicionar
-            </Button>
-          </form>
-          {people.length > 1 ? (
-            <button
-              type="button"
-              className="self-start text-sm text-muted-foreground hover:text-destructive"
-              onClick={() => removePerson(activeId)}
-            >
-              Remover {profile.name} deste aparelho
-            </button>
-          ) : null}
-        </CardContent>
-      </Card>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Card>
@@ -274,11 +213,11 @@ export function StatsPanel() {
 
       {total === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Ainda não há tentativas nesta pessoa. Vá em Praticar e escreva as formas.
+          Ainda não há tentativas neste aparelho. Vá em Praticar e escreva as formas.
         </p>
       ) : (
         <Button type="button" variant="outline" onClick={reset}>
-          Zerar progresso de {profile.name}
+          Zerar progresso deste aparelho
         </Button>
       )}
     </div>

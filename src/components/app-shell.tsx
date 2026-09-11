@@ -24,7 +24,7 @@ export function AppShell() {
           <p className="text-right text-xs tabular-nums text-muted-foreground sm:text-sm">
             {hydrated ? (
               <>
-                <span className="block font-medium text-foreground">{profile.name}</span>
+                <span className="block font-medium text-foreground">neste aparelho</span>
                 {profile.totalCorrect} acerto{profile.totalCorrect === 1 ? "" : "s"}
               </>
             ) : (
