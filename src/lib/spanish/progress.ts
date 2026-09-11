@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { PersonId, TenseId } from "./types";
 
-export type PracticeKind = TenseId | "prep";
+export type PracticeKind = TenseId | "prep" | "vocab" | "serestar";
 export type PracticePerson = PersonId | "forma" | "prep";
 
 export interface Attempt {

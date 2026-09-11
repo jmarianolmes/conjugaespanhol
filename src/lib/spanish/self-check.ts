@@ -1,6 +1,7 @@
 import { checkAnswer, formFor } from "./conjugate";
 import { expectedFor, PHRASES } from "./phrases";
 import { checkPrep, expectedPrep, PREP_PROMPTS } from "./prepositions";
+import { checkMeaning, checkSerEstar, checkVocabPhrase, SER_ESTAR, VOCAB } from "./vocab";
 import { getVerb } from "./verbs";
 
 const cases: Array<[string, Parameters<typeof formFor>[1], Parameters<typeof formFor>[2], string]> = [
@@ -126,6 +127,20 @@ export function runSelfCheck(): string[] {
       if (!checkPrep(prompt, alias).ok) {
         failures.push(`prep ${prompt.id}: rejected alias ${alias}`);
       }
+    }
+  }
+  const vocabIds = VOCAB.map((item) => item.id);
+  for (const id of vocabIds.filter((item, index) => vocabIds.indexOf(item) !== index)) {
+    failures.push(`vocab duplicate id ${id}`);
+  }
+  for (const entry of VOCAB) {
+    if (!entry.es || !entry.pt) failures.push(`vocab ${entry.id}: missing es/pt`);
+    if (!checkMeaning(entry, entry.pt).ok) failures.push(`vocab ${entry.id}: rejected own meaning`);
+    if (!checkVocabPhrase(entry, entry.es).ok) failures.push(`vocab ${entry.id}: rejected own word`);
+  }
+  for (const prompt of SER_ESTAR) {
+    if (!checkSerEstar(prompt, prompt.fill).ok) {
+      failures.push(`ser-estar ${prompt.id}: rejected ${prompt.fill}`);
     }
   }
   return failures;

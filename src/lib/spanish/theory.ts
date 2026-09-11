@@ -1,7 +1,7 @@
 import type { TenseId } from "./types";
 
 export interface TheoryBlock {
-  id: TenseId | "ser-estar" | "stem" | "accents" | "pronouns" | "haber" | "preposiciones";
+  id: TenseId | "ser-estar" | "stem" | "accents" | "pronouns" | "haber" | "preposiciones" | "vocab";
   title: string;
   kicker: string;
   body: string[];
@@ -265,6 +265,21 @@ export const THEORY: TheoryBlock[] = [
     examples: [
       { es: "Voy a casa. Estoy en casa.", pt: "Vou para casa. Estou em casa." },
       { es: "Este café es para ti. Gracias por tu ayuda.", pt: "Este café é para você. Obrigado pela ajuda." },
+    ],
+  },
+  {
+    id: "vocab",
+    title: "Palavras que o português não adivinha",
+    kicker: "Falsos amigos e léxico da Espanha",
+    body: [
+      "Muita palavra parece portuguesa e significa outra coisa: embarazada é grávida, exquisito é delicioso, oficina é escritório, largo é comprido.",
+      "Outras nem existem no português: enchufe (tomada), fregona, chaval, mola, currar, zumo, ordenador, móvil, piso (apartamento).",
+      "Ser × estar muda o adjetivo: está aburrido (entediado) × es aburrido (é chato). está listo (pronto) × es listo (esperto).",
+    ],
+    compare: "Não traduza palavra a palavra. Aprenda o pacote: a palavra, o falso amigo, e uma frase do dia a dia.",
+    examples: [
+      { es: "María está embarazada.", pt: "A María está grávida." },
+      { es: "El enchufe no funciona. Esta peli mola.", pt: "A tomada não funciona. Este filme é legal." },
     ],
   },
 ];

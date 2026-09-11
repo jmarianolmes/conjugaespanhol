@@ -237,10 +237,14 @@ export function StatsPanel() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {mistakes.map((item) => {
-              if (item.tense === "prep") {
+              if (item.tense === "prep" || item.tense === "vocab" || item.tense === "serestar") {
+                const tag =
+                  item.tense === "prep" ? "preposição" : item.tense === "serestar" ? "ser / estar" : "palavra";
                 return (
                   <div key={`${item.at}-${item.person}`} className="text-sm">
-                    <p className="text-muted-foreground">preposição · {item.expected}</p>
+                    <p className="text-muted-foreground">
+                      {tag} · {item.expected}
+                    </p>
                     <p>
                       <span className="text-destructive">{item.given || "—"}</span>
                       <span className="text-muted-foreground"> → </span>
