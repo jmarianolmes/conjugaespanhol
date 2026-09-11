@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { GuidePanel } from "@/components/guide-panel";
 import { THEORY } from "@/lib/spanish";
 
 export function TheoryPanel() {
@@ -12,8 +13,7 @@ export function TheoryPanel() {
       <div>
         <h2 className="font-display text-3xl tracking-tight">Como cada tempo funciona</h2>
         <p className="mt-2 max-w-prose text-muted-foreground">
-          Explicações em português, com o paralelo do nosso idioma. Abra o tempo que está
-          praticando e volte à conjugação com a regra fresca.
+          Explicações em português, com o paralelo do nosso idioma, e as tabelas de terminações embaixo.
         </p>
       </div>
       <Accordion type="single" collapsible className="rounded-2xl border border-border bg-surface px-5">
@@ -49,6 +49,8 @@ export function TheoryPanel() {
           </AccordionItem>
         ))}
       </Accordion>
+
+      <GuidePanel embedded />
     </div>
   );
 }

@@ -45,15 +45,24 @@ function EndingTable({
   );
 }
 
-export function GuidePanel() {
+export function GuidePanel({ embedded = false }: { embedded?: boolean }) {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="font-display text-3xl tracking-tight">Guia rápido</h2>
-        <p className="mt-2 max-w-prose text-muted-foreground">
-          Terminações, ser e estar, mudanças de radical e os acentos que trocam o tempo.
-        </p>
-      </div>
+      {embedded ? (
+        <div>
+          <h3 className="font-display text-2xl tracking-tight">Terminações</h3>
+          <p className="mt-2 max-w-prose text-sm text-muted-foreground">
+            Tabelas para consultar enquanto pratica.
+          </p>
+        </div>
+      ) : (
+        <div>
+          <h2 className="font-display text-3xl tracking-tight">Guia rápido</h2>
+          <p className="mt-2 max-w-prose text-muted-foreground">
+            Terminações, ser e estar, mudanças de radical e os acentos que trocam o tempo.
+          </p>
+        </div>
+      )}
 
       <EndingTable
         title="Presente"
