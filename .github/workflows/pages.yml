@@ -23,7 +23,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html 404.html _shell.html favicon.svg og.jpg static assets __grok docs .nojekyll
+          for path in index.html 404.html _shell.html favicon.svg og.jpg static assets __grok docs .nojekyll; do
+            if [ -e "$path" ]; then git add "$path"; fi
+          done
           if git diff --cached --quiet; then
             echo "No generated changes to commit"
           else
