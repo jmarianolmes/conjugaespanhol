@@ -1,7 +1,7 @@
 name: GitHub Pages
 
-# Manual only. O Pages deste repo publica a pasta principal (main).
-# O site estático fica em index.html + static/ (URL: .../conjugaespanhol/).
+# O Pages deste repo publica a pasta principal (main).
+# O build gera index.html + static/ diretamente na raiz.
 on:
   workflow_dispatch:
 
@@ -12,10 +12,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
-      - run: npm install
+      - run: npm install --no-audit --no-fund
       - run: npm run build:pages
+      - name: Commit generated GitHub Pages files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html 404.html _shell.html favicon.svg og.jpg static assets __grok docs .nojekyll
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+          else
+            git commit -m "Atualiza site publicado no GitHub Pages"
+            git push
+          fi
