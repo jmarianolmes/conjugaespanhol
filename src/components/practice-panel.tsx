@@ -26,6 +26,7 @@ import {
 } from "@/lib/spanish";
 import type { PersonId, Slot, TenseId } from "@/lib/spanish";
 import { cn } from "@/lib/utils";
+import { UI_TEXT, type Language } from "@/lib/language";
 
 type Status = "idle" | "correct" | "wrong";
 
@@ -38,7 +39,8 @@ function shortLabel(slot: Slot): string {
   return slot.label;
 }
 
-export function PracticePanel() {
+export function PracticePanel({ language = "pt" }: { language?: Language }) {
+  const text = UI_TEXT[language];
   const record = useProgress((s) => s.record);
   const [tenseId, setTenseId] = useState<TenseId | "">("");
   const [verbId, setVerbId] = useState("");
@@ -157,8 +159,8 @@ export function PracticePanel() {
     <div className="flex flex-col gap-2">
       <div className={cn("grid gap-2", tense ? "grid-cols-[1fr_1fr_auto]" : "grid-cols-1")}>
         <Select value={tenseId || "__unset__"} onValueChange={(v) => onTenseChange(v as TenseId)}>
-          <SelectTrigger id="tense-select" className="min-w-0" aria-label="Escolher tempo verbal">
-            <SelectValue placeholder="Tempo verbal" />
+          <SelectTrigger id="tense-select" className="min-w-0" aria-label={text.tense}>
+            <SelectValue placeholder={text.tense} />
           </SelectTrigger>
           <SelectContent>
             {TENSE_GROUPS.map((group) => (
@@ -176,8 +178,8 @@ export function PracticePanel() {
 
         {tense ? (
           <Select value={verbId || "__unset__"} onValueChange={onVerbChange}>
-            <SelectTrigger id="verb-select" className="min-w-0" aria-label="Escolher verbo">
-              <SelectValue placeholder="Verbo" />
+            <SelectTrigger id="verb-select" className="min-w-0" aria-label={text.verb}>
+              <SelectValue placeholder={text.verb} />
             </SelectTrigger>
             <SelectContent>
               {VERB_GROUPS.map((group) => {
@@ -199,7 +201,7 @@ export function PracticePanel() {
           </Select>
         ) : (
           <p className="self-center text-sm text-muted-foreground">
-            Escolha o tempo; o verbo abre em seguida.
+            {text.chooseTense}
           </p>
         )}
 
@@ -209,7 +211,7 @@ export function PracticePanel() {
             variant="outline"
             className="h-10 w-10 shrink-0 px-0 sm:h-11 sm:w-11"
             onClick={shuffle}
-            aria-label="Sortear tempo e verbo"
+            aria-label={text.shuffle}
           >
             <Dices className={cn("size-4", diceSpin && "dice-spin")} />
           </Button>
@@ -245,7 +247,7 @@ export function PracticePanel() {
                 onClick={() => setShowHint((v) => !v)}
               >
                 <Lightbulb className="size-4" />
-                {showHint ? "Ocultar" : "Dica"}
+                {showHint ? text.hide : text.hint}
               </button>
             ) : null}
           </div>
@@ -340,12 +342,12 @@ export function PracticePanel() {
               className="h-10 flex-1 sm:h-11"
               onClick={nextVerb}
             >
-              {allCorrect ? "Seguir" : "Próximo verbo"}
+              {allCorrect ? text.continue : text.nextVerb}
               <ChevronRight className="size-4" />
             </Button>
             <Button type="button" variant="outline" className="h-10 px-3 sm:h-11" onClick={resetAnswers}>
               <Eraser className="size-4" />
-              <span className="sr-only sm:not-sr-only">Limpar</span>
+              <span className="sr-only sm:not-sr-only">{text.clear}</span>
             </Button>
           </div>
         </div>
