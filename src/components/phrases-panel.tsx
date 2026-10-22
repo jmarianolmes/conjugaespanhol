@@ -25,13 +25,20 @@ import {
   useProgress,
 } from "@/lib/spanish";
 import type { PhrasePrompt, TenseId } from "@/lib/spanish";
+import { useLocale } from "@/lib/i18n/locale";
+import { GROUP_LABEL, PERSON_HINT, TENSE_NAME, TENSE_SHORT, pick } from "@/lib/i18n/meta";
+import { t } from "@/lib/i18n/ui";
+import { phraseMeaning } from "@/lib/i18n/content";
 import { cn } from "@/lib/utils";
 
 type Status = "idle" | "correct" | "wrong";
 
-function personHint(phrase: PhrasePrompt): string {
-  if (phrase.person === "forma") return "forma única";
-  return PERSONS.find((item) => item.id === phrase.person)?.label ?? phrase.person;
+function personHint(phrase: PhrasePrompt, locale: ReturnType<typeof useLocale>["locale"]): string {
+  if (phrase.person === "forma") return t(locale, "uniqueForm");
+  if (phrase.person === "el" || phrase.person === "tu" || phrase.person === "yo" || phrase.person === "nosotros" || phrase.person === "vosotros" || phrase.person === "ellos") {
+    return pick(locale, PERSON_HINT[phrase.person], PERSONS.find((item) => item.id === phrase.person)?.label ?? phrase.person);
+  }
+  return phrase.person;
 }
 
 function pickPhrase(pool: PhrasePrompt[], except?: string): PhrasePrompt {
@@ -42,6 +49,7 @@ function pickPhrase(pool: PhrasePrompt[], except?: string): PhrasePrompt {
 
 export function PhrasesPanel() {
   const record = useProgress((s) => s.record);
+  const { locale } = useLocale();
   const [tenseFilter, setTenseFilter] = useState<TenseId | "all">("all");
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
@@ -129,25 +137,26 @@ export function PhrasesPanel() {
   }
 
   if (!phrase || !verb) {
-    return <p className="text-sm text-muted-foreground">Nenhuma frase neste tempo ainda.</p>;
+    return <p className="text-sm text-muted-foreground">{t(locale, "noPhrase")}</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <Select value={tenseFilter} onValueChange={(v) => onFilter(v as TenseId | "all")}>
-          <SelectTrigger aria-label="Filtrar tempo da frase">
-            <SelectValue placeholder="Todos os tempos" />
+          <SelectTrigger aria-label={t(locale, "filterTense")}>
+            <SelectValue placeholder={t(locale, "allTenses")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os tempos</SelectItem>
+            <SelectItem value="all">{t(locale, "allTenses")}</SelectItem>
             {TENSE_GROUPS.map((group) => (
               <SelectGroup key={group.id}>
-                <SelectLabel>{group.label}</SelectLabel>
+                <SelectLabel>{pick(locale, GROUP_LABEL[group.id], group.label)}</SelectLabel>
                 {TENSES.filter((item) => item.group === group.id && phrasesForTense(item.id).length > 0).map(
                   (item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.nameEs}
+                      <span className="text-muted-foreground"> — {pick(locale, TENSE_NAME[item.id], item.nameEs)}</span>
                       <span className="text-muted-foreground">
                         {" "}
                         · {phrasesForTense(item.id).length}
@@ -164,7 +173,7 @@ export function PhrasesPanel() {
           variant="outline"
           className="h-10 w-10 px-0 sm:h-11 sm:w-11"
           onClick={() => rollTo(pickPhrase(pool, phrase.id), pool)}
-          aria-label="Sortear frase"
+          aria-label={t(locale, "shufflePhrase")}
           disabled={rolling}
         >
           <Dices className={cn("size-4", rolling && "dice-spin")} />
@@ -172,7 +181,7 @@ export function PhrasesPanel() {
       </div>
 
       <p className="text-sm font-medium text-foreground">
-        {stats.count} frases · {stats.tenses} tempos
+        {stats.count} {t(locale, "phrasesCount")} · {stats.tenses}
       </p>
 
       <div key={dealKey} className={cn("flex flex-col gap-3", !rolling && "phrase-in")}>
@@ -181,10 +190,10 @@ export function PhrasesPanel() {
             {verb.infinitive}
           </span>
           <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-            {tenseLabelFor(phrase)}
+            {pick(locale, TENSE_SHORT[phrase.tense], tenseLabelFor(phrase))}
           </span>
           <span className="chip-pop rounded-lg bg-primary px-2.5 py-1.5 text-sm font-semibold text-primary-foreground">
-            {personHint(phrase)}
+            {personHint(phrase, locale)}
           </span>
         </div>
 
@@ -211,7 +220,7 @@ export function PhrasesPanel() {
             </>
           )}
         </p>
-        <p className="text-sm text-muted-foreground">{phrase.pt}</p>
+        <p className="text-sm text-muted-foreground">{phraseMeaning(locale, phrase)}</p>
       </div>
 
       <Input
@@ -221,8 +230,8 @@ export function PhrasesPanel() {
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint={status === "correct" ? "go" : "done"}
-        placeholder="complete o verbo"
-        aria-label="Forma verbal da frase"
+        placeholder={t(locale, "form")}
+        aria-label={t(locale, "answer")}
         disabled={rolling}
         className={cn(
           "h-11 font-display text-lg",
@@ -253,7 +262,7 @@ export function PhrasesPanel() {
 
       {status === "wrong" ? (
         <p className="feedback-in rounded-lg bg-error-bg px-3 py-2 text-sm">
-          <span className="font-semibold text-destructive">Não é essa. A forma é </span>
+          <span className="font-semibold text-destructive">{t(locale, "notThatForm")}</span>
           <span className="font-display text-base font-semibold text-foreground">{expected}</span>
         </p>
       ) : null}
@@ -261,7 +270,7 @@ export function PhrasesPanel() {
       {status === "correct" ? (
         <p className="feedback-in flex items-center gap-1.5 rounded-lg bg-success-bg px-3 py-2 text-sm font-semibold text-success">
           <Check className="size-4" />
-          Certo: {expected}
+          {t(locale, "correct")}: {expected}
         </p>
       ) : null}
 
@@ -272,7 +281,7 @@ export function PhrasesPanel() {
         onClick={nextPhrase}
         disabled={rolling}
       >
-        {status === "idle" ? "Pular" : "Seguir"}
+        {status === "idle" ? t(locale, "skip") : t(locale, "follow")}
         <ChevronRight className="size-4" />
       </Button>
     </div>

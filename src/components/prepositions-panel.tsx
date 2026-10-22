@@ -24,6 +24,11 @@ import {
   useProgress,
 } from "@/lib/spanish";
 import type { PrepGroupId, PrepId, PrepPrompt } from "@/lib/spanish";
+import { glossOf } from "@/lib/i18n/content";
+import { useLocale } from "@/lib/i18n/locale";
+import { PREP_MEANING, pick } from "@/lib/i18n/meta";
+import { PREP_PT, PREP_USE, PREP_WHY } from "@/lib/i18n/gloss-prep";
+import { t } from "@/lib/i18n/ui";
 import { cn } from "@/lib/utils";
 
 type Status = "idle" | "correct" | "wrong";
@@ -37,6 +42,7 @@ function pickPrompt(pool: PrepPrompt[], except?: string): PrepPrompt {
 
 export function PrepositionsPanel() {
   const record = useProgress((s) => s.record);
+  const { locale } = useLocale();
   const [filter, setFilter] = useState<Filter>("all");
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
@@ -122,23 +128,23 @@ export function PrepositionsPanel() {
   }
 
   if (!prompt || !meta) {
-    return <p className="text-sm text-muted-foreground">Nenhuma frase neste grupo ainda.</p>;
+    return <p className="text-sm text-muted-foreground">{t(locale, "noPhrase")}</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <Select value={filter} onValueChange={(v) => onFilter(v as Filter)}>
-          <SelectTrigger aria-label="Filtrar preposição">
-            <SelectValue placeholder="Todas as preposições" />
+          <SelectTrigger aria-label={t(locale, "filterPrep")}>
+            <SelectValue placeholder={t(locale, "allPreps")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as preposições</SelectItem>
+            <SelectItem value="all">{t(locale, "allPreps")}</SelectItem>
             {PREP_GROUPS.map((group) => (
               <SelectGroup key={group.id}>
-                <SelectLabel>{group.label}</SelectLabel>
+                <SelectLabel>{group.id === "otras" ? t(locale, "others") : group.label}</SelectLabel>
                 <SelectItem value={group.id}>
-                  {group.label}
+                  {group.id === "otras" ? t(locale, "others") : group.label}
                   <span className="text-muted-foreground">
                     {" "}
                     · {promptsForPrep(group.id).length}
@@ -147,6 +153,7 @@ export function PrepositionsPanel() {
                 {PREPOSITIONS.filter((item) => item.group === group.id).map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.label}
+                    <span className="text-muted-foreground"> — {pick(locale, PREP_MEANING[item.id], item.meaningPt)}</span>
                     <span className="text-muted-foreground">
                       {" "}
                       · {promptsForPrep(item.id).length}
@@ -162,7 +169,7 @@ export function PrepositionsPanel() {
           variant="outline"
           className="h-10 w-10 px-0 sm:h-11 sm:w-11"
           onClick={() => rollTo(pickPrompt(pool, prompt.id), pool)}
-          aria-label="Sortear frase"
+          aria-label={t(locale, "shufflePhrase")}
           disabled={rolling}
         >
           <Dices className={cn("size-4", rolling && "dice-spin")} />
@@ -170,13 +177,13 @@ export function PrepositionsPanel() {
       </div>
 
       <p className="text-sm font-medium text-foreground">
-        {stats.count} frases · {stats.preps} preposições
+        {stats.count} {t(locale, "phrasesCount")} · {stats.preps} {t(locale, "prep")}
       </p>
 
       <div key={dealKey} className={cn("flex flex-col gap-3", !rolling && "phrase-in")}>
         <div className={cn("flex flex-wrap items-center gap-2", rolling && "rolling-blur")}>
           <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-            {prompt.use}
+            {glossOf(locale, PREP_USE, prompt.id, prompt.use)}
           </span>
           {status !== "idle" ? (
             <span className="chip-pop rounded-lg bg-primary px-2.5 py-1.5 font-display text-base font-semibold text-primary-foreground">
@@ -184,7 +191,7 @@ export function PrepositionsPanel() {
             </span>
           ) : (
             <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-muted-foreground">
-              {isPrepChunk(prompt) ? "prep. + artigo" : "preposição"}
+              {isPrepChunk(prompt) ? t(locale, "prepPlus") : t(locale, "preposition")}
             </span>
           )}
         </div>
@@ -206,7 +213,7 @@ export function PrepositionsPanel() {
             </>
           )}
         </p>
-        <p className="text-sm text-muted-foreground">{prompt.pt}</p>
+        <p className="text-sm text-muted-foreground">{glossOf(locale, PREP_PT, prompt.id, prompt.pt)}</p>
       </div>
 
       <Input
@@ -216,8 +223,8 @@ export function PrepositionsPanel() {
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint={status === "correct" ? "go" : "done"}
-        placeholder="por la, en el, a las…"
-        aria-label="Preposição da frase"
+        placeholder={t(locale, "prepPlaceholder")}
+        aria-label={t(locale, "prepAria")}
         disabled={rolling}
         className={cn(
           "h-11 font-display text-lg",
@@ -248,9 +255,9 @@ export function PrepositionsPanel() {
 
       {status === "wrong" ? (
         <p className="feedback-in rounded-lg bg-error-bg px-3 py-2 text-sm">
-          <span className="font-semibold text-destructive">Não é essa. A forma é </span>
+          <span className="font-semibold text-destructive">{t(locale, "notThatForm")}</span>
           <span className="font-display text-base font-semibold text-foreground">{expected}</span>
-          <span className="mt-1 block text-foreground">{prompt.why}</span>
+          <span className="mt-1 block text-foreground">{glossOf(locale, PREP_WHY, prompt.id, prompt.why)}</span>
         </p>
       ) : null}
 
@@ -258,14 +265,14 @@ export function PrepositionsPanel() {
         <p className="feedback-in rounded-lg bg-success-bg px-3 py-2 text-sm font-semibold text-success">
           <span className="flex items-center gap-1.5">
             <Check className="size-4" />
-            Certo: {expected}
+            {t(locale, "correct")}: {expected}
           </span>
-          <span className="mt-1 block font-medium text-foreground">{prompt.why}</span>
+          <span className="mt-1 block font-medium text-foreground">{glossOf(locale, PREP_WHY, prompt.id, prompt.why)}</span>
         </p>
       ) : null}
 
       <Button type="button" className="h-10 sm:h-11" onClick={nextPrompt} disabled={rolling}>
-        {status === "idle" ? "Pular" : "Seguir"}
+        {status === "idle" ? t(locale, "skip") : t(locale, "follow")}
         <ChevronRight className="size-4" />
       </Button>
     </div>

@@ -22,6 +22,11 @@ import {
 } from "@/lib/spanish";
 import type { SerEstarPrompt, VocabEntry, VocabFilter } from "@/lib/spanish";
 import { cn } from "@/lib/utils";
+import { glossOf } from "@/lib/i18n/content";
+import { SER_PT, SER_USE, SER_WHY, VOCAB_NOTE, VOCAB_PHRASE, VOCAB_PT } from "@/lib/i18n/gloss-vocab";
+import { useLocale } from "@/lib/i18n/locale";
+import { KIND_LABEL, pick as labelOf } from "@/lib/i18n/meta";
+import { t } from "@/lib/i18n/ui";
 
 type Status = "idle" | "correct" | "wrong";
 type Mode = "meaning" | "phrase";
@@ -34,6 +39,7 @@ function pick<T extends { id: string }>(pool: T[], except?: string): T {
 
 export function VocabPanel() {
   const record = useProgress((s) => s.record);
+  const { locale } = useLocale();
   const [filter, setFilter] = useState<VocabFilter>("falso");
   const [mode, setMode] = useState<Mode>("meaning");
   const [index, setIndex] = useState(0);
@@ -101,7 +107,7 @@ export function VocabPanel() {
     const result = serMode
       ? checkSerEstar(ser, given)
       : mode === "meaning"
-        ? checkMeaning(word, given)
+        ? checkMeaning(word, given, locale === "pt" ? [] : [glossOf(locale, VOCAB_PT, word.id, word.pt)])
         : checkVocabPhrase(word, given);
     setStatus(result.ok ? "correct" : "wrong");
     holdUntilRef.current = Date.now() + 800;
@@ -120,7 +126,7 @@ export function VocabPanel() {
     return result.ok;
   }
 
-  const kindLabel = VOCAB_KINDS.find((item) => item.id === (serMode ? "falso" : word?.kind))?.label;
+  const kindLabel = labelOf(locale, KIND_LABEL[serMode ? "falso" : (word?.kind ?? "falso")], "");
 
   return (
     <div className="flex flex-col gap-3">
@@ -133,15 +139,15 @@ export function VocabPanel() {
             land(0);
           }}
         >
-          <SelectTrigger aria-label="Filtrar palavras">
+          <SelectTrigger aria-label={t(locale, "filterWords")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as palavras</SelectItem>
-            <SelectItem value="ser-estar">Ser / estar</SelectItem>
+            <SelectItem value="all">{t(locale, "allWords")}</SelectItem>
+            <SelectItem value="ser-estar">{t(locale, "serEstar")}</SelectItem>
             {VOCAB_KINDS.map((item) => (
               <SelectItem key={item.id} value={item.id}>
-                {item.label}
+                {labelOf(locale, KIND_LABEL[item.id], item.label)}
                 <span className="text-muted-foreground"> · {vocabFor(item.id).length}</span>
               </SelectItem>
             ))}
@@ -152,7 +158,7 @@ export function VocabPanel() {
           variant="outline"
           className="h-10 w-10 px-0 sm:h-11 sm:w-11"
           onClick={next}
-          aria-label="Sortear"
+          aria-label={t(locale, "shuffle")}
           disabled={rolling}
         >
           <Dices className={cn("size-4", rolling && "dice-spin")} />
@@ -171,7 +177,7 @@ export function VocabPanel() {
               requestAnimationFrame(() => inputRef.current?.focus());
             }}
           >
-            Significado
+            {t(locale, "meaning")}
           </Button>
           <Button
             type="button"
@@ -183,15 +189,15 @@ export function VocabPanel() {
               requestAnimationFrame(() => inputRef.current?.focus());
             }}
           >
-            Em frases
+            {t(locale, "inPhrases")}
           </Button>
         </div>
       ) : null}
 
       <p className="text-sm font-medium text-foreground">
         {serMode
-          ? `${SER_ESTAR.length} frases · ser × estar`
-          : `${stats.count} palavras · ${mode === "meaning" ? "o que significa?" : "complete a frase"}`}
+          ? `${SER_ESTAR.length} ${t(locale, "serLine")}`
+          : `${stats.count} ${t(locale, "wordsUnit")} · ${mode === "meaning" ? t(locale, "meansWhat") : t(locale, "completeSentence")}`}
       </p>
 
       {serMode ? (
@@ -207,8 +213,8 @@ export function VocabPanel() {
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint={status === "correct" ? "go" : "done"}
-        placeholder={serMode ? "soy, estoy, es, está…" : mode === "meaning" ? "significado em português" : "palavra em espanhol"}
-        aria-label="Resposta"
+        placeholder={serMode ? t(locale, "serPh") : mode === "meaning" ? t(locale, "meaningPh") : t(locale, "spanishWord")}
+        aria-label={t(locale, "answer")}
         disabled={rolling}
         className={cn(
           "h-11 font-display text-lg",
@@ -239,12 +245,14 @@ export function VocabPanel() {
 
       {status === "wrong" ? (
         <p className="feedback-in rounded-lg bg-error-bg px-3 py-2 text-sm">
-          <span className="font-semibold text-destructive">Não é essa. A forma é </span>
+          <span className="font-semibold text-destructive">{t(locale, "notThatForm")}</span>
           <span className="font-display text-base font-semibold text-foreground">
-            {serMode ? ser.fill : mode === "meaning" ? word.pt : word.es}
+            {serMode ? ser.fill : mode === "meaning" ? glossOf(locale, VOCAB_PT, word.id, word.pt) : word.es}
           </span>
           <span className="mt-1 block text-foreground">
-            {serMode ? ser.why : word.trap ?? word.why ?? word.phrasePt}
+            {serMode
+              ? glossOf(locale, SER_WHY, ser.id, ser.why)
+              : glossOf(locale, VOCAB_NOTE, word.id, word.trap ?? word.why ?? glossOf(locale, VOCAB_PHRASE, word.id, word.phrasePt))}
           </span>
         </p>
       ) : null}
@@ -253,16 +261,23 @@ export function VocabPanel() {
         <p className="feedback-in rounded-lg bg-success-bg px-3 py-2 text-sm font-semibold text-success">
           <span className="flex items-center gap-1.5">
             <Check className="size-4" />
-            Certo
+            {t(locale, "correct")}
           </span>
           <span className="mt-1 block font-medium text-foreground">
-            {serMode ? ser.why : word.trap ?? word.why ?? `${word.es} = ${word.pt}`}
+            {serMode
+              ? glossOf(locale, SER_WHY, ser.id, ser.why)
+              : glossOf(
+                  locale,
+                  VOCAB_NOTE,
+                  word.id,
+                  word.trap ?? word.why ?? `${word.es} = ${glossOf(locale, VOCAB_PT, word.id, word.pt)}`,
+                )}
           </span>
         </p>
       ) : null}
 
       <Button type="button" className="h-10 sm:h-11" onClick={next} disabled={rolling}>
-        {status === "idle" ? "Pular" : "Seguir"}
+        {status === "idle" ? t(locale, "skip") : t(locale, "follow")}
         <ChevronRight className="size-4" />
       </Button>
     </div>
@@ -284,6 +299,8 @@ function WordCard({
   dealKey: number;
   kindLabel?: string;
 }) {
+  const { locale } = useLocale();
+  const phrase = glossOf(locale, VOCAB_PHRASE, entry.id, entry.phrasePt);
   return (
     <div key={dealKey} className={cn("flex flex-col gap-3", !rolling && "phrase-in")}>
       <div className={cn("flex flex-wrap items-center gap-2", rolling && "rolling-blur")}>
@@ -291,7 +308,7 @@ function WordCard({
           {kindLabel}
         </span>
         <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-muted-foreground">
-          {mode === "meaning" ? "o que é?" : "complete"}
+          {mode === "meaning" ? t(locale, "whatIsIt") : t(locale, "complete")}
         </span>
       </div>
 
@@ -325,7 +342,7 @@ function WordCard({
               </>
             )}
           </p>
-          <p className="text-sm text-muted-foreground">{entry.phrasePt}</p>
+          <p className="text-sm text-muted-foreground">{phrase}</p>
         </>
       )}
     </div>
@@ -343,11 +360,12 @@ function SerCard({
   rolling: boolean;
   dealKey: number;
 }) {
+  const { locale } = useLocale();
   return (
     <div key={dealKey} className={cn("flex flex-col gap-3", !rolling && "phrase-in")}>
       <div className={cn("flex flex-wrap items-center gap-2", rolling && "rolling-blur")}>
         <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-          {prompt.use}
+          {glossOf(locale, SER_USE, prompt.id, prompt.use)}
         </span>
         {status !== "idle" ? (
           <span className="chip-pop rounded-lg bg-primary px-2.5 py-1.5 font-display text-base font-semibold text-primary-foreground">
@@ -355,7 +373,7 @@ function SerCard({
           </span>
         ) : (
           <span className="chip-pop rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-muted-foreground">
-            ser ou estar?
+            {t(locale, "serOrEstar")}
           </span>
         )}
       </div>
@@ -376,7 +394,7 @@ function SerCard({
           </>
         )}
       </p>
-      <p className="text-sm text-muted-foreground">{prompt.pt}</p>
+      <p className="text-sm text-muted-foreground">{glossOf(locale, SER_PT, prompt.id, prompt.pt)}</p>
     </div>
   );
 }

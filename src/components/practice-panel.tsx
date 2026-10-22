@@ -25,8 +25,10 @@ import {
   useProgress,
 } from "@/lib/spanish";
 import type { PersonId, Slot, TenseId } from "@/lib/spanish";
+import { useLocale } from "@/lib/i18n/locale";
+import { GROUP_LABEL, PERSON_HINT, TENSE_NAME, VERB_MEANING, pick } from "@/lib/i18n/meta";
+import { t } from "@/lib/i18n/ui";
 import { cn } from "@/lib/utils";
-import { UI_TEXT, type Language } from "@/lib/language";
 
 type Status = "idle" | "correct" | "wrong";
 
@@ -39,9 +41,9 @@ function shortLabel(slot: Slot): string {
   return slot.label;
 }
 
-export function PracticePanel({ language = "pt" }: { language?: Language }) {
-  const text = UI_TEXT[language];
+export function PracticePanel() {
   const record = useProgress((s) => s.record);
+  const { locale } = useLocale();
   const [tenseId, setTenseId] = useState<TenseId | "">("");
   const [verbId, setVerbId] = useState("");
   const [values, setValues] = useState<Record<string, string>>({});
@@ -159,16 +161,17 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
     <div className="flex flex-col gap-2">
       <div className={cn("grid gap-2", tense ? "grid-cols-[1fr_1fr_auto]" : "grid-cols-1")}>
         <Select value={tenseId || "__unset__"} onValueChange={(v) => onTenseChange(v as TenseId)}>
-          <SelectTrigger id="tense-select" className="min-w-0" aria-label={text.tense}>
-            <SelectValue placeholder={text.tense} />
+          <SelectTrigger id="tense-select" className="min-w-0" aria-label={t(locale, "chooseTense")}>
+            <SelectValue placeholder={t(locale, "tensePlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {TENSE_GROUPS.map((group) => (
               <SelectGroup key={group.id}>
-                <SelectLabel>{group.label}</SelectLabel>
+                <SelectLabel>{pick(locale, GROUP_LABEL[group.id], group.label)}</SelectLabel>
                 {TENSES.filter((item) => item.group === group.id).map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.nameEs}
+                    <span className="text-muted-foreground"> — {pick(locale, TENSE_NAME[item.id], item.namePt)}</span>
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -178,8 +181,8 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
 
         {tense ? (
           <Select value={verbId || "__unset__"} onValueChange={onVerbChange}>
-            <SelectTrigger id="verb-select" className="min-w-0" aria-label={text.verb}>
-              <SelectValue placeholder={text.verb} />
+            <SelectTrigger id="verb-select" className="min-w-0" aria-label={t(locale, "chooseVerb")}>
+              <SelectValue placeholder={t(locale, "verbPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {VERB_GROUPS.map((group) => {
@@ -187,11 +190,11 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
                 if (items.length === 0) return null;
                 return (
                   <SelectGroup key={group.id}>
-                    <SelectLabel>{group.label}</SelectLabel>
+                    <SelectLabel>{pick(locale, GROUP_LABEL[group.id], group.label)}</SelectLabel>
                     {items.map((item) => (
                       <SelectItem key={item.id} value={item.id} textValue={item.infinitive}>
                         {item.infinitive}
-                        <span className="text-muted-foreground"> — {item.meaningPt}</span>
+                        <span className="text-muted-foreground"> — {pick(locale, VERB_MEANING[item.id], item.meaningPt)}</span>
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -201,7 +204,7 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
           </Select>
         ) : (
           <p className="self-center text-sm text-muted-foreground">
-            {text.chooseTense}
+            {t(locale, "tenseThenVerb")}
           </p>
         )}
 
@@ -211,7 +214,7 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
             variant="outline"
             className="h-10 w-10 shrink-0 px-0 sm:h-11 sm:w-11"
             onClick={shuffle}
-            aria-label={text.shuffle}
+            aria-label={t(locale, "shuffleTense")}
           >
             <Dices className={cn("size-4", diceSpin && "dice-spin")} />
           </Button>
@@ -222,19 +225,19 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-              {verb.meaningPt}
+              {pick(locale, VERB_MEANING[verb.id], verb.meaningPt)}
             </span>
             <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 font-display text-sm font-semibold text-foreground">
               -{verb.ending}
             </span>
             {verb.tags.includes("irregular") ? (
               <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-                irregular
+                {t(locale, "irregular")}
               </span>
             ) : null}
             {verb.tags.includes("stem-change") ? (
               <span className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm font-semibold text-foreground">
-                radical
+                {t(locale, "stem")}
               </span>
             ) : null}
             <span className="rounded-lg bg-primary px-2.5 py-1.5 text-sm font-semibold tabular-nums text-primary-foreground">
@@ -247,7 +250,7 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
                 onClick={() => setShowHint((v) => !v)}
               >
                 <Lightbulb className="size-4" />
-                {showHint ? text.hide : text.hint}
+                {showHint ? t(locale, "hide") : t(locale, "hint")}
               </button>
             ) : null}
           </div>
@@ -279,7 +282,7 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
                     <label
                       className="w-14 shrink-0 text-sm font-medium sm:w-36"
                       htmlFor={`slot-${slot.id}`}
-                      title={slot.hintPt}
+                      title={slot.id === "forma" ? t(locale, "uniqueForm") : pick(locale, PERSON_HINT[slot.id], slot.hintPt)}
                     >
                       <span className="sm:hidden">{shortLabel(slot)}</span>
                       <span className="hidden sm:inline">{slot.label}</span>
@@ -295,8 +298,8 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
                       autoCorrect="off"
                       spellCheck={false}
                       enterKeyHint={isLast ? "go" : "next"}
-                      placeholder="forma"
-                      aria-label={`Conjugar ${verb.infinitive}, ${slot.label}`}
+                      placeholder={t(locale, "form")}
+                      aria-label={`${t(locale, "conjugate")} ${verb.infinitive}, ${slot.label}`}
                       className={cn(
                         "h-10 font-display text-base sm:h-11 sm:text-lg",
                         state === "correct" && "border-success bg-success-bg focus-visible:ring-success",
@@ -318,14 +321,14 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
                     />
                     <span className="flex w-5 shrink-0 justify-center">
                       {state === "correct" ? (
-                        <Check className="size-4 text-success" aria-label="correto" />
+                        <Check className="size-4 text-success" aria-label={t(locale, "correctAria")} />
                       ) : null}
                     </span>
                   </div>
                   {state === "wrong" ? (
                     <p className="pb-1 pl-16 text-xs sm:pl-40">
                       <span className="text-destructive">
-                        {accentHint ? "Falta o acento. " : "Não é essa. "}
+                        {accentHint ? t(locale, "missingAccent") : t(locale, "notThat")}
                       </span>
                       <span className="font-display text-sm text-foreground">{expected}</span>
                     </p>
@@ -342,12 +345,12 @@ export function PracticePanel({ language = "pt" }: { language?: Language }) {
               className="h-10 flex-1 sm:h-11"
               onClick={nextVerb}
             >
-              {allCorrect ? text.continue : text.nextVerb}
+              {allCorrect ? t(locale, "follow") : t(locale, "nextVerb")}
               <ChevronRight className="size-4" />
             </Button>
             <Button type="button" variant="outline" className="h-10 px-3 sm:h-11" onClick={resetAnswers}>
               <Eraser className="size-4" />
-              <span className="sr-only sm:not-sr-only">{text.clear}</span>
+              <span className="sr-only sm:not-sr-only">{t(locale, "clear")}</span>
             </Button>
           </div>
         </div>

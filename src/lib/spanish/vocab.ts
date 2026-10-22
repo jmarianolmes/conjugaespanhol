@@ -862,10 +862,11 @@ export const SER_ESTAR: SerEstarPrompt[] = [
 
 export type VocabFilter = VocabKind | "all" | "ser-estar";
 
-function foldPt(value: string): string {
+function foldMeaning(value: string): string {
   return stripDiacritics(normalizeAnswer(value))
-    .replace(/^(o|a|os|as|um|uma|uns|umas)\s+/u, "")
-    .replace(/[^\p{L}\s]/gu, "")
+    .replace(/ё/g, "е")
+    .replace(/^(the|an|a|to|o|os|as|um|uma|uns|umas)\s+/u, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -875,14 +876,16 @@ export function vocabFor(filter: VocabFilter): VocabEntry[] {
   return VOCAB.filter((item) => item.kind === filter);
 }
 
-export function checkMeaning(entry: VocabEntry, raw: string): CheckResult {
-  const accepted = [entry.pt, ...(entry.aliases ?? [])].map(foldPt);
-  const given = foldPt(raw);
-  if (!given) return { ok: false, expected: entry.pt, accentOnly: false };
-  if (accepted.includes(given) || accepted.some((item) => item.includes(given) && given.length >= 4)) {
-    return { ok: true, expected: entry.pt, accentOnly: false };
-  }
-  return { ok: false, expected: entry.pt, accentOnly: false };
+export function checkMeaning(entry: VocabEntry, raw: string, extras: string[] = []): CheckResult {
+  const display = extras.map((item) => item.trim()).find(Boolean) || entry.pt;
+  const accepted = [entry.pt, ...(entry.aliases ?? []), ...extras].map(foldMeaning).filter(Boolean);
+  const given = foldMeaning(raw);
+  if (!given) return { ok: false, expected: display, accentOnly: false };
+  const hit =
+    accepted.includes(given) ||
+    accepted.some((item) => item.includes(given) && given.length >= 4) ||
+    accepted.some((item) => given.includes(item) && item.length >= 4);
+  return { ok: hit, expected: display, accentOnly: false };
 }
 
 export function checkVocabPhrase(entry: VocabEntry, raw: string): CheckResult {

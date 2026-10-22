@@ -1,5 +1,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
+import { LocaleProvider } from "@/lib/i18n/locale";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
@@ -40,11 +41,19 @@ const Route = createRootRoute({
     <html lang="pt-BR" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var s=localStorage.getItem("conjuga-locale");var ok={pt:1,en:1,ru:1,uk:1,zh:1};var loc=s&&ok[s]?s:"";if(!loc){var list=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||""];loc="pt";for(var i=0;i<list.length;i++){var c=String(list[i]||"").toLowerCase();if(c.indexOf("pt")===0){loc="pt";break}if(c.indexOf("uk")===0){loc="uk";break}if(c.indexOf("ru")===0){loc="ru";break}if(c.indexOf("zh")===0){loc="zh";break}if(c.indexOf("en")===0){loc="en";break}}}var html={pt:"pt-BR",en:"en",ru:"ru",uk:"uk",zh:"zh-CN"}[loc]||loc;document.documentElement.lang=html;}catch(e){}})();',
+          }}
+        />
       </head>
       <body>
         <PreviewHostBridge />
         <AuthProvider>
-          <Outlet />
+          <LocaleProvider>
+            <Outlet />
+          </LocaleProvider>
         </AuthProvider>
         <Scripts />
       </body>
