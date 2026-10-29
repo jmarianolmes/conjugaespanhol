@@ -44,7 +44,7 @@ const Route = createRootRoute({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              '(function(){try{var s=localStorage.getItem("conjuga-locale");var ok={pt:1,en:1,ru:1,uk:1,zh:1};var loc=s&&ok[s]?s:"";if(!loc){var list=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||""];loc="pt";for(var i=0;i<list.length;i++){var c=String(list[i]||"").toLowerCase();if(c.indexOf("pt")===0){loc="pt";break}if(c.indexOf("uk")===0){loc="uk";break}if(c.indexOf("ru")===0){loc="ru";break}if(c.indexOf("zh")===0){loc="zh";break}if(c.indexOf("en")===0){loc="en";break}}}var html={pt:"pt-BR",en:"en",ru:"ru",uk:"uk",zh:"zh-CN"}[loc]||loc;document.documentElement.lang=html;}catch(e){}})();',
+              '(function(){try{var s=localStorage.getItem("conjuga-locale");var ok={pt:1,es:1,en:1,ru:1,uk:1,zh:1};var loc=s&&ok[s]?s:"";if(!loc){var list=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||""];loc="pt";for(var i=0;i<list.length;i++){var c=String(list[i]||"").toLowerCase();if(c.indexOf("pt")===0){loc="pt";break}if(c.indexOf("es")===0){loc="es";break}if(c.indexOf("uk")===0){loc="uk";break}if(c.indexOf("ru")===0){loc="ru";break}if(c.indexOf("zh")===0){loc="zh";break}if(c.indexOf("en")===0){loc="en";break}}}var html={pt:"pt-BR",es:"es",en:"en",ru:"ru",uk:"uk",zh:"zh-CN"}[loc]||loc;document.documentElement.lang=html;}catch(e){}})();',
           }}
         />
       </head>

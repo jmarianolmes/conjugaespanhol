@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { glossOf } from "@/lib/i18n/content";
 import { SER_PT, SER_USE, SER_WHY, VOCAB_NOTE, VOCAB_PHRASE, VOCAB_PT } from "@/lib/i18n/gloss-vocab";
 import { useLocale } from "@/lib/i18n/locale";
+import { VOCAB_DEF_ES } from "@/lib/i18n/es-by-en";
 import { KIND_LABEL, pick as labelOf } from "@/lib/i18n/meta";
 import { t } from "@/lib/i18n/ui";
 
@@ -107,7 +108,13 @@ export function VocabPanel() {
     const result = serMode
       ? checkSerEstar(ser, given)
       : mode === "meaning"
-        ? checkMeaning(word, given, locale === "pt" ? [] : [glossOf(locale, VOCAB_PT, word.id, word.pt)])
+        ? checkMeaning(
+            word,
+            given,
+            locale === "pt"
+              ? []
+              : [locale === "es" ? VOCAB_DEF_ES[word.id] || "" : glossOf(locale, VOCAB_PT, word.id, word.pt)],
+          )
         : checkVocabPhrase(word, given);
     setStatus(result.ok ? "correct" : "wrong");
     holdUntilRef.current = Date.now() + 800;
@@ -247,7 +254,7 @@ export function VocabPanel() {
         <p className="feedback-in rounded-lg bg-error-bg px-3 py-2 text-sm">
           <span className="font-semibold text-destructive">{t(locale, "notThatForm")}</span>
           <span className="font-display text-base font-semibold text-foreground">
-            {serMode ? ser.fill : mode === "meaning" ? glossOf(locale, VOCAB_PT, word.id, word.pt) : word.es}
+            {serMode ? ser.fill : mode === "meaning" ? (locale === "es" ? VOCAB_DEF_ES[word.id] || glossOf(locale, VOCAB_PT, word.id, word.pt) : glossOf(locale, VOCAB_PT, word.id, word.pt)) : word.es}
           </span>
           <span className="mt-1 block text-foreground">
             {serMode
@@ -300,7 +307,10 @@ function WordCard({
   kindLabel?: string;
 }) {
   const { locale } = useLocale();
-  const phrase = glossOf(locale, VOCAB_PHRASE, entry.id, entry.phrasePt);
+  const phrase =
+    locale === "es"
+      ? VOCAB_DEF_ES[entry.id] || ""
+      : glossOf(locale, VOCAB_PHRASE, entry.id, entry.phrasePt);
   return (
     <div key={dealKey} className={cn("flex flex-col gap-3", !rolling && "phrase-in")}>
       <div className={cn("flex flex-wrap items-center gap-2", rolling && "rolling-blur")}>
@@ -342,7 +352,7 @@ function WordCard({
               </>
             )}
           </p>
-          <p className="text-sm text-muted-foreground">{phrase}</p>
+          {phrase ? <p className="text-sm text-muted-foreground">{phrase}</p> : null}
         </>
       )}
     </div>
@@ -394,7 +404,9 @@ function SerCard({
           </>
         )}
       </p>
-      <p className="text-sm text-muted-foreground">{glossOf(locale, SER_PT, prompt.id, prompt.pt)}</p>
+      {locale === "es" ? null : (
+        <p className="text-sm text-muted-foreground">{glossOf(locale, SER_PT, prompt.id, prompt.pt)}</p>
+      )}
     </div>
   );
 }

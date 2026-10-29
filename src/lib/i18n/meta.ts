@@ -1,10 +1,11 @@
 import type { Locale } from "./types";
 import type { PersonId, TenseId } from "@/lib/spanish/types";
+import { spanishFromEnglish } from "./es-by-en";
 
 type L = Record<Locale, string>;
 
 function L(pt: string, en: string, ru: string, uk: string, zh: string): L {
-  return { pt, en, ru, uk, zh };
+  return { pt, es: spanishFromEnglish(en) || en, en, ru, uk, zh };
 }
 
 export const TENSE_NAME: Record<TenseId, L> = {

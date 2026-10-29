@@ -213,7 +213,9 @@ export function PrepositionsPanel() {
             </>
           )}
         </p>
-        <p className="text-sm text-muted-foreground">{glossOf(locale, PREP_PT, prompt.id, prompt.pt)}</p>
+        {locale === "es" ? null : (
+          <p className="text-sm text-muted-foreground">{glossOf(locale, PREP_PT, prompt.id, prompt.pt)}</p>
+        )}
       </div>
 
       <Input

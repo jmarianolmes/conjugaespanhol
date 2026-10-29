@@ -1,9 +1,11 @@
 import type { PhrasePrompt } from "@/lib/spanish/phrases";
 import { PHRASE_PT } from "./gloss-phrases";
+import { spanishFromEnglish } from "./es-by-en";
 import type { Gloss, Locale } from "./types";
 
 export function glossText(locale: Locale, gloss: Gloss | undefined, fallback: string): string {
   if (!gloss || locale === "pt") return fallback;
+  if (locale === "es") return gloss.es || spanishFromEnglish(gloss.en) || gloss.en;
   const value = gloss[locale];
   return value || fallback;
 }
@@ -22,5 +24,6 @@ export function glossAt(locale: Locale, list: Gloss[] | undefined, index: number
 }
 
 export function phraseMeaning(locale: Locale, phrase: PhrasePrompt): string {
+  if (locale === "es") return "";
   return glossOf(locale, PHRASE_PT, phrase.id, phrase.pt);
 }

@@ -865,7 +865,7 @@ export type VocabFilter = VocabKind | "all" | "ser-estar";
 function foldMeaning(value: string): string {
   return stripDiacritics(normalizeAnswer(value))
     .replace(/ё/g, "е")
-    .replace(/^(the|an|a|to|o|os|as|um|uma|uns|umas)\s+/u, "")
+    .replace(/^(the|an|a|to|el|la|los|las|un|una|unos|unas|o|os|as|um|uma|uns|umas)\s+/u, "")
     .replace(/[^\p{L}\p{N}\s]/gu, "")
     .replace(/\s+/g, " ")
     .trim();

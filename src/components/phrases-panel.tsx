@@ -220,7 +220,9 @@ export function PhrasesPanel() {
             </>
           )}
         </p>
-        <p className="text-sm text-muted-foreground">{phraseMeaning(locale, phrase)}</p>
+        {phraseMeaning(locale, phrase) ? (
+          <p className="text-sm text-muted-foreground">{phraseMeaning(locale, phrase)}</p>
+        ) : null}
       </div>
 
       <Input
