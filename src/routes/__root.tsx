@@ -43,8 +43,7 @@ const Route = createRootRoute({
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{
-            __html:
-              '(function(){try{var s=localStorage.getItem("conjuga-locale");var ok={pt:1,es:1,en:1,ru:1,uk:1,zh:1};var loc=s&&ok[s]?s:"";if(!loc){var list=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||""];loc="pt";for(var i=0;i<list.length;i++){var c=String(list[i]||"").toLowerCase();if(c.indexOf("pt")===0){loc="pt";break}if(c.indexOf("es")===0){loc="es";break}if(c.indexOf("uk")===0){loc="uk";break}if(c.indexOf("ru")===0){loc="ru";break}if(c.indexOf("zh")===0){loc="zh";break}if(c.indexOf("en")===0){loc="en";break}}}var html={pt:"pt-BR",es:"es",en:"en",ru:"ru",uk:"uk",zh:"zh-CN"}[loc]||loc;document.documentElement.lang=html;}catch(e){}})();',
+            __html: `(function(){try{var ok={pt:1,es:1,en:1,ru:1,uk:1,zh:1};function pick(list){for(var i=0;i<list.length;i++){var c=String(list[i]||"").toLowerCase();if(c.indexOf("pt")===0)return"pt";if(c.indexOf("es")===0)return"es";if(c.indexOf("uk")===0)return"uk";if(c.indexOf("ru")===0)return"ru";if(c.indexOf("zh")===0)return"zh";if(c.indexOf("en")===0)return"en"}return"pt"}var saved=localStorage.getItem("conjuga-locale-v2");if(!(saved&&ok[saved])){var legacy=localStorage.getItem("conjuga-locale");saved=legacy&&legacy!=="pt"&&ok[legacy]?legacy:""}var loc=saved;if(!loc){var nav=navigator;var list=(nav.languages&&nav.languages.length)?nav.languages:[nav.language||""];var browser=pick(list);var systemTag=nav.systemLanguage||nav.userLanguage||"";if(!systemTag){try{systemTag=Intl.DateTimeFormat().resolvedOptions().locale||""}catch(e2){}}var system=systemTag?pick([systemTag]):browser;loc=(browser==="pt"&&system!=="pt"&&system!=="en")?system:browser}var html={pt:"pt-BR",es:"es",en:"en",ru:"ru",uk:"uk",zh:"zh-CN"}[loc]||loc;document.documentElement.lang=html;}catch(e){}})();`,
           }}
         />
       </head>

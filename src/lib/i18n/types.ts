@@ -35,3 +35,13 @@ export function detectLocale(languages: readonly string[]): Locale {
   }
   return "pt";
 }
+
+/** Browser list first. If the browser is still Portuguese but the computer
+ *  locale is Spanish, Russian, Ukrainian or Chinese, follow the computer. */
+export function resolveLocale(browserLanguages: readonly string[], systemLanguage?: string | null): Locale {
+  const browser = detectLocale(browserLanguages.filter(Boolean));
+  if (!systemLanguage) return browser;
+  const system = detectLocale([systemLanguage]);
+  if (browser === "pt" && system !== "pt" && system !== "en") return system;
+  return browser;
+}
