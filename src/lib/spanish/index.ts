@@ -4,6 +4,7 @@ export * from "./endings";
 export * from "./conjugate";
 export * from "./verbs";
 export * from "./phrases";
+export * from "./connectors";
 export * from "./prepositions";
 export * from "./vocab";
 export * from "./theory";
