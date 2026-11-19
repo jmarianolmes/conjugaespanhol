@@ -1,6 +1,7 @@
 import { GraduationCap, Languages, LayoutList, PenLine } from "lucide-react";
 import { PracticeHub } from "@/components/practice-hub";
 import { StatsPanel } from "@/components/stats-panel";
+import { VisitorCounter } from "@/components/visitor-counter";
 import { TheoryPanel } from "@/components/theory-panel";
 import { VocabPanel } from "@/components/vocab-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -100,7 +101,10 @@ export function AppShell() {
             <StatsPanel />
           </TabsContent>
         </Tabs>
-        <footer className="mt-8 text-center text-xs text-muted-foreground">{t(locale, "footer")}</footer>
+        <footer className="mt-8 text-center text-xs text-muted-foreground">
+          <VisitorCounter locale={locale} />
+          <p>{t(locale, "footer")}</p>
+        </footer>
       </div>
     </div>
   );

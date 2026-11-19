@@ -125,6 +125,9 @@ const ui = {
     serOrEstar: "ser ou estar?",
     comparePt: "No português.",
     others: "Outras",
+    counterAccesses: "Acessos totais",
+    counterOnlineNow: "online agora",
+    counterHint: "Cada carregamento conta como acesso; online indica atividade nos últimos 15 min.",
     footer: "Desenvolvido por J.M.L.M. Proibida a cópia ou distribuição.",
   },
   es: {
@@ -251,6 +254,9 @@ const ui = {
     serOrEstar: "¿ser o estar?",
     comparePt: "Al lado del portugués.",
     others: "Otras",
+    counterAccesses: "Accesos totales",
+    counterOnlineNow: "en línea ahora",
+    counterHint: "Cada carga cuenta como acceso; en línea indica actividad en los últimos 15 min.",
     footer: "Desarrollado por J.M.L.M. Prohibida la copia o distribución.",
   },
   en: {
@@ -377,6 +383,9 @@ const ui = {
     serOrEstar: "ser or estar?",
     comparePt: "Next to Portuguese.",
     others: "Other",
+    counterAccesses: "Total visits",
+    counterOnlineNow: "online now",
+    counterHint: "Each page load counts as a visit; online means activity in the last 15 min.",
     footer: "Developed by J.M.L.M. Copying or distribution is not allowed.",
   },
   ru: {
@@ -503,6 +512,9 @@ const ui = {
     serOrEstar: "ser или estar?",
     comparePt: "Рядом с португальским.",
     others: "Другие",
+    counterAccesses: "Всего посещений",
+    counterOnlineNow: "сейчас онлайн",
+    counterHint: "Каждая загрузка страницы считается посещением; онлайн означает активность за последние 15 мин.",
     footer: "Разработано J.M.L.M. Копирование и распространение запрещены.",
   },
   uk: {
@@ -629,6 +641,9 @@ const ui = {
     serOrEstar: "ser чи estar?",
     comparePt: "Поруч із португальською.",
     others: "Інші",
+    counterAccesses: "Усього відвідувань",
+    counterOnlineNow: "зараз онлайн",
+    counterHint: "Кожне завантаження сторінки рахується як відвідування; онлайн означає активність за останні 15 хв.",
     footer: "Розроблено J.M.L.M. Копіювання та поширення заборонені.",
   },
   zh: {
@@ -754,6 +769,9 @@ const ui = {
     serOrEstar: "ser 还是 estar？",
     comparePt: "和葡萄牙语对照。",
     others: "其他",
+    counterAccesses: "总访问量",
+    counterOnlineNow: "当前在线",
+    counterHint: "每次页面加载计为一次访问；在线表示最近 15 分钟内有活动。",
     footer: "由 J.M.L.M. 开发。禁止复制或分发。",
   },
 } as const;
